@@ -56,7 +56,7 @@ data DateField
   = YearField Abbreviated Padding
   | MonthNumberField Padding
   | MonthNameField Abbreviated
-  | DayOfMonthField Padding
+  | DayField Padding
   | WeekdayField Abbreviated
 
 derive instance genericDateField :: Generic DateField
