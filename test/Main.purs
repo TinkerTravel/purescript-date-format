@@ -53,3 +53,19 @@ main = do
         let expected = Right [FormatItem (TimeField $ HoursField Hours24 (PadWith '0'))]
             actual = parseDateTimeFormat "%H"
         Assert.equal expected actual
+      test "Multiple formatters: %Y-%H" do
+        let expected = Right
+                        [ FormatItem (DateField $ YearField Full NoPadding)
+                        , Literal "-"
+                        , FormatItem (TimeField $ HoursField Hours24 (PadWith '0'))
+                        ]
+            actual = parseDateTimeFormat "%Y-%H"
+        Assert.equal expected actual
+      test "%0Y as date format string (padding modifier)" do
+        let expected = Right [FormatItem (YearField Full (PadWith '0'))]
+            actual = parseDateFormat "%0Y"
+        Assert.equal expected actual
+      test "%_Y as date format string (padding modifier)" do
+        let expected = Right [FormatItem (YearField Full (PadWith ' '))]
+            actual = parseDateFormat "%_Y"
+        Assert.equal expected actual
