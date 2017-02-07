@@ -22,6 +22,167 @@ mkDay = toEnum >>> fromMaybe bottom
 writerSuite :: forall e. TestSuite e
 writerSuite = do
   dateWriterSuite
+  timeWriterSuite
+
+timeWriterSuite :: forall e. TestSuite e
+timeWriterSuite =
+  suite "Time Writer" do
+      test "empty format string" do
+        let expected = Just ""
+            actual =
+              writeTimeFormat
+                []
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "hour (24-based)" do
+        let expected = Just "13"
+            actual =
+              writeTimeFormat
+                [FormatItem $ HoursField Hours24 NoPadding]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "hour (12-based)" do
+        let expected = Just "1"
+            actual =
+              writeTimeFormat
+                [FormatItem $ HoursField Hours12 NoPadding]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "hour (12-based, 0-padded)" do
+        let expected = Just "01"
+            actual =
+              writeTimeFormat
+                [FormatItem $ HoursField Hours12 (PadWith '0')]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "hour (12-based, am/pm)" do
+        let expected = Just "1PM"
+            actual =
+              writeTimeFormat
+                [ FormatItem $ HoursField Hours12 NoPadding
+                , FormatItem $ AMPMField
+                ]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "minute (> 9)" do
+        let expected = Just "37"
+            actual =
+              writeTimeFormat
+                [FormatItem $ MinutesField NoPadding]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "minute (<= 9)" do
+        let expected = Just "4"
+            actual =
+              writeTimeFormat
+                [FormatItem $ MinutesField NoPadding]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 4
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "minute (<= 9, 0-padded)" do
+        let expected = Just "04"
+            actual =
+              writeTimeFormat
+                [FormatItem $ MinutesField (PadWith '0')]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 4
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "second (> 9)" do
+        let expected = Just "23"
+            actual =
+              writeTimeFormat
+                [FormatItem $ SecondsField NoPadding]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "second (<= 9)" do
+        let expected = Just "4"
+            actual =
+              writeTimeFormat
+                [FormatItem $ SecondsField NoPadding]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 4
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "second (<= 9, 0-padded)" do
+        let expected = Just "04"
+            actual =
+              writeTimeFormat
+                [FormatItem $ SecondsField (PadWith '0')]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 4
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "millisecond (> 9)" do
+        let expected = Just "456"
+            actual =
+              writeTimeFormat
+                [FormatItem $ MillisecondsField NoPadding]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "millisecond (<= 9)" do
+        let expected = Just "4"
+            actual =
+              writeTimeFormat
+                [FormatItem $ MillisecondsField NoPadding]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 4)
+        Assert.equal expected actual
+
+      test "millisecond (<= 9, 0-padded)" do
+        let expected = Just "004"
+            actual =
+              writeTimeFormat
+                [FormatItem $ MillisecondsField (PadWith '0')]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 4)
+        Assert.equal expected actual
+
 
 dateWriterSuite :: forall e. TestSuite e
 dateWriterSuite =

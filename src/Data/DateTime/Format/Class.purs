@@ -7,6 +7,7 @@ class FormatTime a where
   getHour :: a -> Hour
   getMinute :: a -> Minute
   getSecond :: a -> Second
+  getMillisecond :: a -> Millisecond
 
 class FormatDate a where
   getYear :: a -> Year
@@ -26,3 +27,4 @@ instance formatTimeTime :: FormatTime Time where
   getHour = hour
   getMinute = minute
   getSecond = second
+  getMillisecond = millisecond

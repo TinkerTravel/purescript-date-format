@@ -42,7 +42,7 @@ data TimeField
   = HoursField HoursStyle Padding
   | MinutesField Padding
   | SecondsField Padding
-  | MillisecondsField
+  | MillisecondsField Padding
   | AMPMField
 
 derive instance genericTimeField :: Generic TimeField

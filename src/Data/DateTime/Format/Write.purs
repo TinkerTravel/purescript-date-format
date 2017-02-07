@@ -18,11 +18,28 @@ writeDateFormat :: forall d. FormatDate d
 writeDateFormat fmt d =
   foldMap (\item -> writeDateFormatItem item d) fmt
 
+
 writeDateFormatItem :: forall d. FormatDate d
                     => (FormatItem DateField)
                     -> d
                     -> String
 writeDateFormatItem = writeFormatItem writeDateField
+
+
+writeTimeFormat :: forall d. FormatTime d
+                => TimeFormatSpec
+                -> d
+                -> String
+writeTimeFormat fmt d =
+  foldMap (\item -> writeTimeFormatItem item d) fmt
+
+
+writeTimeFormatItem :: forall d. FormatTime d
+                    => (FormatItem TimeField)
+                    -> d
+                    -> String
+writeTimeFormatItem = writeFormatItem writeTimeField
+
 
 writeFormatItem :: forall d i.
                    (i -> d -> String)
@@ -69,6 +86,60 @@ writeDateField (WeekdayField Abbreviated) =
 writeDateField (WeekdayField Full) =
       getWeekday
   >>> fullWeekdayName
+
+
+writeTimeField :: forall t. FormatTime t
+               => TimeField
+               -> t
+               -> String
+writeTimeField (HoursField Hours24 padding) =
+      getHour
+  >>> fromEnum
+  >>> show
+  >>> applyPadding 2 padding
+writeTimeField (HoursField Hours12 padding) =
+      getHour
+  >>> fromEnum
+  >>> wrap12
+  >>> show
+  >>> applyPadding 2 padding
+writeTimeField (MinutesField padding) =
+      getMinute
+  >>> fromEnum
+  >>> show
+  >>> applyPadding 2 padding
+writeTimeField (SecondsField padding) =
+      getSecond
+  >>> fromEnum
+  >>> show
+  >>> applyPadding 2 padding
+writeTimeField (MillisecondsField padding) =
+      getMillisecond
+  >>> fromEnum
+  >>> show
+  >>> applyPadding 3 padding
+writeTimeField AMPMField =
+      getHour
+  >>> ampmMarker
+
+ampmMarker :: Hour -> String
+ampmMarker h
+  | fromEnum h >= 12 = "PM"
+  | otherwise = "AM"
+
+  {-
+  = HoursField HoursStyle Padding
+  | MinutesField Padding
+  | SecondsField Padding
+  | MillisecondsField
+  | AMPMField
+  -}
+
+
+wrap12 :: Int -> Int
+wrap12 i
+  | i > 12 = i - 12
+  | otherwise = i
 
 takeEnd :: Int -> String -> String
 takeEnd targetLength str =
