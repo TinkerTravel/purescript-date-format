@@ -41,6 +41,21 @@ writeTimeFormatItem :: forall d. FormatTime d
 writeTimeFormatItem = writeFormatItem writeTimeField
 
 
+writeDateTimeFormat :: forall d. FormatDateTime d
+                => DateTimeFormatSpec
+                -> d
+                -> String
+writeDateTimeFormat fmt d =
+  foldMap (\item -> writeDateTimeFormatItem item d) fmt
+
+
+writeDateTimeFormatItem :: forall d. FormatDateTime d
+                    => (FormatItem DateTimeField)
+                    -> d
+                    -> String
+writeDateTimeFormatItem = writeFormatItem writeDateTimeField
+
+
 writeFormatItem :: forall d i.
                    (i -> d -> String)
                 -> FormatItem i
@@ -48,6 +63,13 @@ writeFormatItem :: forall d i.
                 -> String
 writeFormatItem _ (Literal str) _ = str
 writeFormatItem fmt (FormatItem i) d = fmt i d
+
+writeDateTimeField :: forall d. FormatDateTime d
+               => DateTimeField
+               -> d
+               -> String
+writeDateTimeField (DateField f) = writeDateField f
+writeDateTimeField (TimeField f) = writeTimeField f
 
 writeDateField :: forall d. FormatDate d
                => DateField

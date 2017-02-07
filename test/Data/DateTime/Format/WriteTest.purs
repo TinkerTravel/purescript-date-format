@@ -12,6 +12,7 @@ import Data.Enum (toEnum)
 import Data.DateTime.Format
 import Data.Date (canonicalDate, Month (..), Year, Day)
 import Data.Time (Time (..), Hour, Minute, Second, Millisecond)
+import Data.DateTime (DateTime (..))
 
 mkYear :: Int -> Year
 mkYear = toEnum >>> fromMaybe bottom
@@ -23,6 +24,33 @@ writerSuite :: forall e. TestSuite e
 writerSuite = do
   dateWriterSuite
   timeWriterSuite
+  dateTimeWriterSuite
+
+dateTimeWriterSuite :: forall e. TestSuite e
+dateTimeWriterSuite = do
+  let sampleDT =
+        DateTime
+          <$> (canonicalDate <$> toEnum 2017
+                             <*> toEnum 2
+                             <*> toEnum 7)
+          <*> (Time <$> toEnum 13
+                    <*> toEnum 37
+                    <*> toEnum 23
+                    <*> toEnum 456)
+  suite "DateTime Writer" do
+    test "empty format string" do
+        let expected = Just ""
+            actual = writeDateTimeFormat [] <$> sampleDT
+        Assert.equal expected actual
+    test "year + hour" do
+        let expected = Just "2017|13"
+            actual =
+              writeDateTimeFormat
+                [ FormatItem <<< DateField $ YearField Full NoPadding
+                , Literal "|"
+                , FormatItem <<< TimeField $ HoursField Hours24 NoPadding
+                ] <$> sampleDT
+        Assert.equal expected actual
 
 timeWriterSuite :: forall e. TestSuite e
 timeWriterSuite =

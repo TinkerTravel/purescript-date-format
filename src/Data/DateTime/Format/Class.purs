@@ -1,6 +1,7 @@
 module Data.DateTime.Format.Class
 where
 
+import Prelude
 import Data.DateTime
 
 class FormatTime a where
@@ -28,3 +29,17 @@ instance formatTimeTime :: FormatTime Time where
   getMinute = minute
   getSecond = second
   getMillisecond = millisecond
+
+instance formatDateDateTime :: FormatDate DateTime where
+  getYear = year <<< date
+  getMonth = month <<< date
+  getDay = day <<< date
+  getWeekday = weekday <<< date
+
+instance formatTimeDateTime :: FormatTime DateTime where
+  getHour = hour <<< time
+  getMinute = minute <<< time
+  getSecond = second <<< time
+  getMillisecond = millisecond <<< time
+
+instance formatDateTimeDateTime :: FormatDateTime DateTime where
