@@ -100,7 +100,7 @@ mkTimeField padMay c =
   case c of
     'H' -> pure $ HoursField Hours24 (fromMaybe (PadWith '0') padMay)
     -- TODO: more specifiers
-    _ -> P.fail $ "Invalid date format specifier " <> show c
+    _ -> P.fail $ "Invalid time format specifier " <> show c
 
 mkDateTimeField :: Maybe Padding
                 -> Char
@@ -108,3 +108,4 @@ mkDateTimeField :: Maybe Padding
 mkDateTimeField padMay c =
       (TimeField <$> mkTimeField padMay c)
   <|> (DateField <$> mkDateField padMay c)
+  <|> (P.fail $ "Invalid date/time format specifier " <> show c)
