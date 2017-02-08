@@ -102,10 +102,10 @@ writeDateField (DayField padding) =
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeDateField (WeekdayField Abbreviated) =
+writeDateField (WeekdayNameField Abbreviated) =
       getWeekday
   >>> shortWeekdayName
-writeDateField (WeekdayField Full) =
+writeDateField (WeekdayNameField Full) =
       getWeekday
   >>> fullWeekdayName
 

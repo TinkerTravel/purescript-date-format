@@ -6,62 +6,113 @@ import Test.Unit (TestSuite, Test, test, suite)
 import Test.Unit.Assert (assert)
 import Test.Unit.Assert as Assert
 import Data.Array as Array
-import Data.Either (Either (..))
+import Data.Either (Either (..), isLeft)
 import Data.DateTime.Format
+import Data.Tuple (Tuple (..))
+import Data.Traversable (for, sequence)
 
 parserSuite :: forall e. TestSuite e
 parserSuite = do
-    suite "Parser" do
-      test "empty format string" do
-        let expected = Right []
-            actual = parseDateTimeFormat ""
-        Assert.equal expected actual
-      test "literal format string" do
-        let expected = Right [Literal "Hello"]
-            actual = parseDateTimeFormat "Hello"
-        Assert.equal expected actual
-      test "literal percent sign" do
-        let expected = Right [Literal "%"]
-            actual = parseDateTimeFormat "%%"
-        Assert.equal expected actual
-      test "%Y as date format string" do
-        let expected = Right [FormatItem (YearField Full NoPadding)]
-            actual = parseDateFormat "%Y"
-        Assert.equal expected actual
-      test "%Y as time format string (fails)" do
-        let expected = Left "Invalid time format specifier 'Y'"
-            actual = parseTimeFormat "%Y"
-        Assert.equal expected actual
-      test "%Y as date/time format string" do
-        let expected = Right [FormatItem (DateField $ YearField Full NoPadding)]
-            actual = parseDateTimeFormat "%Y"
-        Assert.equal expected actual
-      test "%H as time format string" do
-        let expected = Right [FormatItem (HoursField Hours24 (PadWith '0'))]
-            actual = parseTimeFormat "%H"
-        Assert.equal expected actual
-      test "%H as date format string (fails)" do
-        let expected = Left "Invalid date format specifier 'H'"
-            actual = parseDateFormat "%H"
-        Assert.equal expected actual
-      test "%H as date/time format string" do
-        let expected = Right [FormatItem (TimeField $ HoursField Hours24 (PadWith '0'))]
-            actual = parseDateTimeFormat "%H"
-        Assert.equal expected actual
-      test "Multiple formatters: %Y-%H" do
-        let expected = Right
-                        [ FormatItem (DateField $ YearField Full NoPadding)
-                        , Literal "-"
-                        , FormatItem (TimeField $ HoursField Hours24 (PadWith '0'))
-                        ]
-            actual = parseDateTimeFormat "%Y-%H"
-        Assert.equal expected actual
-      test "%0Y as date format string (padding modifier)" do
-        let expected = Right [FormatItem (YearField Full (PadWith '0'))]
-            actual = parseDateFormat "%0Y"
-        Assert.equal expected actual
-      test "%_Y as date format string (padding modifier)" do
-        let expected = Right [FormatItem (YearField Full (PadWith ' '))]
-            actual = parseDateFormat "%_Y"
-        Assert.equal expected actual
+  literalParserSuite
+  timeParserSuite
+  dateParserSuite
 
+literalParserSuite :: forall e. TestSuite e
+literalParserSuite = do
+  let cases =
+        [ Tuple "" []
+        , Tuple "Hello" [Literal "Hello"]
+        , Tuple "%%" [Literal "%"]
+        , Tuple "%n" [Literal "\n"]
+        , Tuple "%t" [Literal "\t"]
+        ]
+  suite "Parse literal formatters" do
+    void $ for cases \(Tuple fmt expected) -> do
+      test (if fmt == "" then "<empty format>" else fmt) do
+        Assert.equal
+          (Right expected)
+          (parseDateTimeFormat fmt)
+
+timeParserSuite :: forall e. TestSuite e
+timeParserSuite = do
+  let cases =
+        [ Tuple "%H" [ FormatItem $ HoursField Hours24 (PadWith '0') ]
+        , Tuple "%k" [ FormatItem $ HoursField Hours24 (PadWith ' ') ]
+        , Tuple "%M" [ FormatItem (MinutesField (PadWith '0'))]
+        , Tuple "%S" [ FormatItem (SecondsField (PadWith '0'))]
+        , Tuple "%I" [ FormatItem (HoursField Hours12 (PadWith '0'))]
+        , Tuple "%l" [ FormatItem (HoursField Hours12 (PadWith ' '))]
+        , Tuple "%R" [ FormatItem (HoursField Hours24 (PadWith '0'))
+                     , Literal ":"
+                     , FormatItem (MinutesField (PadWith '0'))
+                     ]
+        , Tuple "%T" [ FormatItem (HoursField Hours24 (PadWith '0'))
+                     , Literal ":"
+                     , FormatItem (MinutesField (PadWith '0'))
+                     , Literal ":"
+                     , FormatItem (SecondsField (PadWith '0'))
+                     ]
+        , Tuple "%M-%H" [ FormatItem $ MinutesField (PadWith '0')
+                        , Literal "-"
+                        , FormatItem $ HoursField Hours24 (PadWith '0')
+                        ]
+        ]
+  suite "Parse time formatters" do
+    void $ for cases \(Tuple fmt expected) -> do
+      test (fmt <> " as time") do
+        Assert.equal
+          (Right expected)
+          (parseTimeFormat fmt)
+      test (fmt <> " as datetime") do
+        Assert.equal
+          (Right $ map TimeField <$> expected)
+          (parseDateTimeFormat fmt)
+      test (fmt <> " as date") do
+        Assert.equal
+          true
+          (isLeft $ parseDateFormat fmt)
+
+dateParserSuite :: forall e. TestSuite e
+dateParserSuite = do
+  let cases =
+        [ Tuple "%D" [ FormatItem $ MonthNumberField (PadWith '0')
+                     , Literal "/"
+                     , FormatItem $ DayField (PadWith '0')
+                     , Literal "/"
+                     , FormatItem $ YearField Abbreviated (PadWith '0')
+                     ]
+        , Tuple "%F" [ FormatItem $ YearField Full NoPadding
+                     , Literal "-"
+                     , FormatItem $ MonthNumberField (PadWith '0')
+                     , Literal "-"
+                     , FormatItem $ DayField (PadWith '0')
+                     ]
+
+        , Tuple "%Y" [ FormatItem $ YearField Full NoPadding ]
+        , Tuple "%y" [ FormatItem $ YearField Abbreviated (PadWith '0') ]
+
+        , Tuple "%B" [ FormatItem $ MonthNameField Full ]
+        , Tuple "%b" [ FormatItem $ MonthNameField Abbreviated ]
+        , Tuple "%h" [ FormatItem $ MonthNameField Abbreviated ]
+        , Tuple "%m" [ FormatItem $ MonthNumberField (PadWith '0') ]
+
+        , Tuple "%d" [ FormatItem $ DayField (PadWith '0') ]
+        , Tuple "%e" [ FormatItem $ DayField (PadWith ' ') ]
+
+        , Tuple "%a" [ FormatItem $ WeekdayNameField Abbreviated ]
+        , Tuple "%A" [ FormatItem $ WeekdayNameField Full ]
+        ]
+  suite "Parse date formatters" do
+    void $ for cases \(Tuple fmt expected) -> do
+      test (fmt <> " as date") do
+        Assert.equal
+          (Right expected)
+          (parseDateFormat fmt)
+      test (fmt <> " as datetime") do
+        Assert.equal
+          (Right $ map DateField <$> expected)
+          (parseDateTimeFormat fmt)
+      test (fmt <> " as time") do
+        Assert.equal
+          true
+          (isLeft $ parseTimeFormat fmt)

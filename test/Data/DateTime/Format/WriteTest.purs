@@ -342,7 +342,7 @@ dateWriterSuite =
             expected = "Tuesday"
             actual =
               writeDateFormat
-                [FormatItem $ WeekdayField Full]
+                [FormatItem $ WeekdayNameField Full]
                 sampleDate
         Assert.equal expected actual
 
@@ -351,6 +351,6 @@ dateWriterSuite =
             expected = "Tue"
             actual =
               writeDateFormat
-                [FormatItem $ WeekdayField Abbreviated]
+                [FormatItem $ WeekdayNameField Abbreviated]
                 sampleDate
         Assert.equal expected actual
