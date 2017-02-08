@@ -17,12 +17,6 @@ import Data.Tuple (Tuple (..))
 import Data.Traversable (for, sequence)
 import Data.Maybe (maybe)
 
-mkYear :: Int -> Year
-mkYear = toEnum >>> fromMaybe bottom
-
-mkDay :: Int -> Day
-mkDay = toEnum >>> fromMaybe bottom
-
 formatSuite :: forall e. TestSuite e
 formatSuite = do
   let sampleDT =
