@@ -63,6 +63,9 @@ timeParserSuite = do
         , Tuple "%p" [ FormatItem (AMPMField DefaultCasing) ]
         , Tuple "%P" [ FormatItem (AMPMField LowerCase) ]
 
+        , Tuple "%z" [ FormatItem TimeZoneOffsetField ]
+        , Tuple "%Z" [ FormatItem (TimeZoneNameField DefaultCasing) ]
+
         , Tuple "%R" [ FormatItem (HourField Hours24 (PadWith '0'))
                      , Literal ":"
                      , FormatItem (MinuteField (PadWith '0'))

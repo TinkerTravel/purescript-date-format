@@ -58,6 +58,8 @@ data TimeField
   | SecondField Padding
   | MillisecondsField Padding
   | AMPMField Casing
+  | TimeZoneOffsetField
+  | TimeZoneNameField Casing
   | Local24hTimeField
   | Local12hTimeField
 

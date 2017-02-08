@@ -7,10 +7,15 @@ import Data.DateTime.Format.Class
 import Data.DateTime.Format.FormatSpec
 import Data.DateTime.Format.Field
 import Data.DateTime.Format.FormatLocale
+import Data.DateTime.Locale
+import Data.Time.Duration (Minutes (..))
 import Data.Array as Array
 import Data.Foldable (foldMap)
 import Data.String as String
 import Data.Enum (fromEnum)
+import Data.Maybe (Maybe (..), fromMaybe)
+import Data.Int as Int
+import Data.Ord (abs)
 
 writeDateFormat :: forall d. FormatDate d
                 => DateFormatSpec
@@ -172,6 +177,38 @@ writeTimeField (AMPMField casing) locale =
       getHour
   >>> ampmMarker locale
   >>> applyCasing casing
+writeTimeField (TimeZoneNameField casing) locale =
+      getTimeZone
+  >>> timezoneName
+  >>> fromMaybe ""
+  >>> applyCasing casing
+writeTimeField TimeZoneOffsetField locale =
+      getTimeZone
+  >>> timezoneMinutes
+  >>> formatTZOffset
+
+timezoneMinutes :: Locale -> Minutes
+timezoneMinutes (Locale _ minutes) = minutes
+
+timezoneName :: Locale -> Maybe String
+timezoneName (Locale Nothing _) = Nothing
+timezoneName (Locale (Just (LocaleName name)) _) = Just name
+
+formatTZOffset :: Minutes -> String
+formatTZOffset (Minutes offset) =
+  let offsetInt = fromMaybe 0 $ Int.fromNumber offset
+  in armyMinutes offsetInt
+
+-- | Format a number of minutes to common military format ("+0700" to mean
+-- | "7:00AM")
+armyMinutes :: Int -> String
+armyMinutes i =
+  let hours = abs i / 60
+      minutes = abs i `mod` 60
+      hoursStr = applyPadding 2 (PadWith '0') (show hours)
+      minutesStr = applyPadding 2 (PadWith '0') (show minutes)
+      signStr = if i >= 0 then "+" else "-"
+  in signStr <> hoursStr <> minutesStr
 
 ampmMarker :: _ -> Hour -> String
 ampmMarker locale h

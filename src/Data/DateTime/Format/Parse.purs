@@ -224,6 +224,12 @@ mkTimeField caseMay padMay c =
     -- `%Q`:   decimal point and fraction of second, up to 12 second decimals,
     --     without trailing zeros. For a whole number of seconds, `%Q` produces
     --     the empty string.
+
+    -- `%z` timezone offset in the format -HHMM
+    'z' -> pure [FormatItem $ TimeZoneOffsetField]
+    -- `%Z` timezone name, if any
+    'Z' -> pure [FormatItem $ TimeZoneNameField (fromMaybe DefaultCasing caseMay)]
+
     _ -> P.fail $ "Invalid time format specifier " <> show c
 
 mkDateTimeField :: Maybe Casing

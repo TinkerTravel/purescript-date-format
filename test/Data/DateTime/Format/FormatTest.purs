@@ -32,6 +32,8 @@ formatSuite = do
         [ Tuple "" ""
         , Tuple "%Y-%m-%d %H:%M:%S" "2017-02-07 13:05:01"
         , Tuple "%A" "Tuesday"
+        , Tuple "%Z" "UTC"
+        , Tuple "%z" "+0000"
         ]
   suite "Formatter test" do
     void $ for cases \(Tuple fmt expected) -> do

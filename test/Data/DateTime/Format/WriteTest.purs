@@ -14,6 +14,8 @@ import Data.Date (canonicalDate, Month (..), Year, Day, Weekday (..))
 import Data.Time (Time (..), Hour, Minute, Second, Millisecond)
 import Data.DateTime (DateTime (..))
 import Data.DateTime.Format.FormatLocale
+import Data.Time.Duration (Minutes (..))
+import Data.DateTime.Locale
 
 mkYear :: Int -> Year
 mkYear = toEnum >>> fromMaybe bottom
@@ -244,6 +246,94 @@ timeWriterSuite =
                           <*> toEnum 37
                           <*> toEnum 23
                           <*> toEnum 4)
+        Assert.equal expected actual
+
+      test "time zone offset" do
+        let expected = Just "+0000"
+            actual =
+              writeTimeFormat
+                [FormatItem TimeZoneOffsetField]
+                defDateTimeFormatLocale
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 4)
+        Assert.equal expected actual
+
+      test "time zone name" do
+        let expected = Just "UTC"
+            actual =
+              writeTimeFormat
+                [FormatItem $ TimeZoneNameField DefaultCasing]
+                defDateTimeFormatLocale
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 4)
+        Assert.equal expected actual
+
+      test "local time zone name" do
+        let expected = Just "CET"
+            tz = Locale (Just (LocaleName "CET")) (Minutes 60.0)
+            actual =
+              writeTimeFormat
+                [FormatItem $ TimeZoneNameField DefaultCasing]
+                defDateTimeFormatLocale
+                <$> (LocalValue tz
+                      <$> (Time <$> toEnum 13
+                                <*> toEnum 37
+                                <*> toEnum 23
+                                <*> toEnum 4
+                          )
+                    )
+        Assert.equal expected actual
+
+      test "local time zone name not specified" do
+        let expected = Just ""
+            tz = Locale Nothing (Minutes 60.0)
+            actual =
+              writeTimeFormat
+                [FormatItem $ TimeZoneNameField DefaultCasing]
+                defDateTimeFormatLocale
+                <$> (LocalValue tz
+                      <$> (Time <$> toEnum 13
+                                <*> toEnum 37
+                                <*> toEnum 23
+                                <*> toEnum 4
+                          )
+                    )
+        Assert.equal expected actual
+
+      test "local time zone offset" do
+        let expected = Just "+0100"
+            tz = Locale (Just (LocaleName "CET")) (Minutes 60.0)
+            actual =
+              writeTimeFormat
+                [FormatItem $ TimeZoneOffsetField]
+                defDateTimeFormatLocale
+                <$> (LocalValue tz
+                      <$> (Time <$> toEnum 13
+                                <*> toEnum 37
+                                <*> toEnum 23
+                                <*> toEnum 4
+                          )
+                    )
+        Assert.equal expected actual
+
+      test "local time zone, negative offset" do
+        let expected = Just "-0200"
+            tz = Locale (Just (LocaleName "XYZ")) (Minutes (-120.0))
+            actual =
+              writeTimeFormat
+                [FormatItem $ TimeZoneOffsetField]
+                defDateTimeFormatLocale
+                <$> (LocalValue tz
+                      <$> (Time <$> toEnum 13
+                                <*> toEnum 37
+                                <*> toEnum 23
+                                <*> toEnum 4
+                          )
+                    )
         Assert.equal expected actual
 
 
