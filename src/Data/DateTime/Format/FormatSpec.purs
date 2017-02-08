@@ -11,9 +11,8 @@ data FormatItem a
 
 derive instance genericFormatItem :: Generic a => Generic (FormatItem a)
 
-instance showFormatItem :: Show a => Show (FormatItem a) where
-  show (Literal s) = "Literal " <> show s
-  show (FormatItem i) = "FormatItem " <> show i
+instance showFormatItem :: Generic a => Show (FormatItem a) where
+  show = gShow
 
 derive instance eqFormatItem :: Eq a => Eq (FormatItem a)
 
