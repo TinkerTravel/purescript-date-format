@@ -53,3 +53,16 @@ defDateFormat =
   , Literal "-"
   , FormatItem $ DayField (PadWith '0')
   ]
+
+defDateTimeFormat :: DateTimeFormatSpec
+defDateTimeFormat =
+  [ FormatItem <<< DateField $ WeekdayNameField Full DefaultCasing
+  , Literal " "
+  , FormatItem <<< DateField $ MonthNameField Full DefaultCasing
+  , Literal " "
+  , FormatItem <<< DateField $ DayField (PadWith ' ')
+  , Literal " "
+  , FormatItem <<< TimeField $ Local24hTimeField
+  , Literal " "
+  , FormatItem <<< DateField $ YearField Full NoPadding
+  ]

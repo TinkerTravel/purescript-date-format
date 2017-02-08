@@ -79,6 +79,8 @@ writeDateTimeField :: forall d. FormatDateTime d
                -> String
 writeDateTimeField (DateField f) = writeDateField f
 writeDateTimeField (TimeField f) = writeTimeField f
+writeDateTimeField LocalDateTimeField = \locale ->
+  writeDateTimeFormat locale.dateTimeFmt locale
 
 writeDateField :: forall d. FormatDate d
                => DateField

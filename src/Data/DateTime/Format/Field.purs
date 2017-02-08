@@ -92,6 +92,7 @@ derive instance eqDateField :: Eq DateField
 data DateTimeField
   = TimeField TimeField
   | DateField DateField
+  | LocalDateTimeField
 
 derive instance genericDateTimeField :: Generic DateTimeField
 

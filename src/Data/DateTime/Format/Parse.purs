@@ -233,95 +233,14 @@ mkDateTimeField :: Maybe Casing
 mkDateTimeField caseMay padMay c =
       (map (map TimeField) <$> mkTimeField caseMay padMay c)
   <|> (map (map DateField) <$> mkDateField caseMay padMay c)
+  <|> (mkCompositeDateTimeField caseMay padMay c)
   <|> (P.fail $ "Invalid date/time format specifier " <> show c)
 
-{-
-
-`%%`:   `%`
-`%t`:   tab
-`%n`:   newline
-
-glibc-style modifiers can be used before the letter (here marked as
-`z`):
-
-`%-z`:   no padding
-`%_z`:   pad with spaces
-`%0z`:   pad with zeros
-`%^z`:   convert to upper case
-`%#z`:   convert to lower case (consistently, unlike glibc)
-
-For `TimeZone` (and `ZonedTime` and `UTCTime`):
-
-`%z`:   timezone offset in the format `-HHMM`.
-`%Z`:   timezone name
-
-For `LocalTime` (and `ZonedTime` and `UTCTime` and `UniversalTime`):
-
-`%c`:   as `dateTimeFmt` `locale` (e.g. `%a %b %e %H:%M:%S %Z %Y`)
-
-For `TimeOfDay` (and `LocalTime` and `ZonedTime` and `UTCTime` and
-`UniversalTime`):
-
-`%R`:   same as `%H:%M`
-`%T`:   same as `%H:%M:%S`
-`%X`:   as `timeFmt` `locale` (e.g. `%H:%M:%S`)
-`%r`:   as `time12Fmt` `locale` (e.g. `%I:%M:%S %p`)
-`%P`:   day-half of day from (`amPm` `locale`), converted to lowercase,
-    `am`, `pm`
-`%p`:   day-half of day from (`amPm` `locale`), `AM`, `PM`
-`%H`:   hour of day (24-hour), 0-padded to two chars, `00` - `23`
-`%k`:   hour of day (24-hour), space-padded to two chars, ` 0` - `23`
-`%I`:   hour of day-half (12-hour), 0-padded to two chars, `01` - `12`
-`%l`:   hour of day-half (12-hour), space-padded to two chars, ` 1` - `12`
-`%M`:   minute of hour, 0-padded to two chars, `00` - `59`
-`%S`:   second of minute (without decimal part), 0-padded to two chars, `00`
-    - `60`
-`%q`:   picosecond of second, 0-padded to twelve chars, `000000000000` -
-    `999999999999`.
-`%Q`:   decimal point and fraction of second, up to 12 second decimals,
-    without trailing zeros. For a whole number of seconds, `%Q` produces
-    the empty string.
-
-For `UTCTime` and `ZonedTime`:
-
-`%s`:   number of whole seconds since the Unix epoch. For times before the
-    Unix epoch, this is a negative number. Note that in `%s.%q` and
-    `%s%Q` the decimals are positive, not negative. For example, 0.9
-    seconds before the Unix epoch is formatted as `-1.1` with `%s%Q`.
-
-For `Day` (and `LocalTime` and `ZonedTime` and `UTCTime` and
-`UniversalTime`):
-
-`%D`:   same as `%m/%d/%y`
-`%F`:   same as `%Y-%m-%d`
-`%x`:   as `dateFmt` `locale` (e.g. `%m/%d/%y`)
-`%Y`:   year, no padding. Note `%0Y` and `%_Y` pad to four chars
-`%y`:   year of century, 0-padded to two chars, `00` - `99`
-`%C`:   century, no padding. Note `%0C` and `%_C` pad to two chars
-`%B`:   month name, long form (`fst` from `months` `locale`), `January` -
-        `December`
-`%b`,
-`%h`:   month name, short form (`snd` from `months` `locale`), `Jan` - `Dec`
-`%m`:   month of year, 0-padded to two chars, `01` - `12`
-`%d`:   day of month, 0-padded to two chars, `01` - `31`
-`%e`:   day of month, space-padded to two chars, ` 1` - `31`
-`%j`:   day of year, 0-padded to three chars, `001` - `366`
-`%G`:   year for Week Date format, no padding. Note `%0G` and `%_G` pad to
-        four chars
-`%g`:   year of century for Week Date format, 0-padded to two chars, `00` -
-        `99`
-`%f`:   century for Week Date format, no padding. Note `%0f` and `%_f` pad
-        to two chars
-`%V`:   week of year for Week Date format, 0-padded to two chars, `01` -
-        `53`
-`%u`:   day of week for Week Date format, `1` - `7`
-`%a`:   day of week, short form (`snd` from `wDays` `locale`), `Sun` - `Sat`
-`%A`:   day of week, long form (`fst` from `wDays` `locale`), `Sunday` -
-        `Saturday`
-`%U`:   week of year where weeks start on Sunday (as `sundayStartWeek`),
-        0-padded to two chars, `00` - `53`
-`%w`:   day of week number, `0` (= Sunday) - `6` (= Saturday)
-`%W`:   week of year where weeks start on Monday (as `mondayStartWeek`),
-        0-padded to two chars, `00` - `53`
-
--}
+mkCompositeDateTimeField :: Maybe Casing
+                         -> Maybe Padding
+                         -> Char
+                         -> P.Parser String (Array (FormatItem DateTimeField))
+mkCompositeDateTimeField caseMay padMay c =
+  case c of
+    'c' -> pure [FormatItem LocalDateTimeField]
+    _ -> P.fail $ "Invalid date/time format specifier " <> show c
