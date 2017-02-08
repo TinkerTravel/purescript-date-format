@@ -10,7 +10,7 @@ import Data.Either (Either (..))
 import Data.Maybe (Maybe (..), fromMaybe)
 import Data.Enum (toEnum)
 import Data.DateTime.Format
-import Data.Date (canonicalDate, Month (..), Year, Day)
+import Data.Date (canonicalDate, Month (..), Year, Day, Weekday (..))
 import Data.Time (Time (..), Hour, Minute, Second, Millisecond)
 import Data.DateTime (DateTime (..))
 
@@ -352,5 +352,32 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ WeekdayNameField Abbreviated]
+                sampleDate
+        Assert.equal expected actual
+
+      test "weekday number (simple case)" do
+        let sampleDate = canonicalDate (mkYear 2017) February (mkDay 7)
+            expected = "2"
+            actual =
+              writeDateFormat
+                [FormatItem $ WeekdayNumberField Monday 1]
+                sampleDate
+        Assert.equal expected actual
+
+      test "weekday number (zero case)" do
+        let sampleDate = canonicalDate (mkYear 2017) February (mkDay 5)
+            expected = "0"
+            actual =
+              writeDateFormat
+                [FormatItem $ WeekdayNumberField Sunday 0]
+                sampleDate
+        Assert.equal expected actual
+
+      test "weekday number (wrapped case)" do
+        let sampleDate = canonicalDate (mkYear 2017) February (mkDay 5)
+            expected = "7"
+            actual =
+              writeDateFormat
+                [FormatItem $ WeekdayNumberField Monday 1]
                 sampleDate
         Assert.equal expected actual

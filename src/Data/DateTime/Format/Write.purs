@@ -108,6 +108,11 @@ writeDateField (WeekdayNameField Abbreviated) =
 writeDateField (WeekdayNameField Full) =
       getWeekday
   >>> fullWeekdayName
+writeDateField (WeekdayNumberField shift base) =
+      getWeekday
+  >>> fromEnum
+  >>> (\x -> (x + 7 - fromEnum shift) `mod` 7 + base)
+  >>> show
 
 
 writeTimeField :: forall t. FormatTime t

@@ -3,6 +3,7 @@ where
 
 import Prelude
 import Data.Generic
+import Data.Date (Weekday)
 
 data HoursStyle
   = Hours12
@@ -58,6 +59,12 @@ data DateField
   | MonthNameField Abbreviated
   | DayField Padding
   | WeekdayNameField Abbreviated
+  -- | `WeekdayNumberField shift base` gets a weekday number such that
+  -- | `shift` aligns with `base`, and the resulting number is in the
+  -- | range `[base..base+7)`.
+  -- | In other words, `shift` is the nominal start of the week, and `base`
+  -- | is the corresponding day number.
+  | WeekdayNumberField Weekday Int
 
 derive instance genericDateField :: Generic DateField
 

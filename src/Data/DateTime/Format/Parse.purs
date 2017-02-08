@@ -4,6 +4,7 @@ where
 import Prelude
 import Data.DateTime.Format.Field
 import Data.DateTime.Format.FormatSpec
+import Data.Date (Weekday (..))
 import Text.Parsing.Parser as P
 import Text.Parsing.Parser.Combinators as P
 import Text.Parsing.Parser.String as P
@@ -144,7 +145,9 @@ mkDateField padMay c =
 
     ---- Weekday
     -- `%u`:   day of week for Week Date format, `1` - `7`
+    'u' -> pure [FormatItem $ WeekdayNumberField Monday 1]
     -- `%w`:   day of week number, `0` (= Sunday) - `6` (= Saturday)
+    'w' -> pure [FormatItem $ WeekdayNumberField Sunday 0]
     -- `%a`:   day of week, short form (`snd` from `wDays` `locale`), `Sun` - `Sat`
     'a' -> pure [FormatItem $ WeekdayNameField Abbreviated]
     -- `%A`:   day of week, long form (`fst` from `wDays` `locale`), `Sunday` -

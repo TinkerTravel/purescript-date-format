@@ -101,6 +101,8 @@ dateParserSuite = do
 
         , Tuple "%a" [ FormatItem $ WeekdayNameField Abbreviated ]
         , Tuple "%A" [ FormatItem $ WeekdayNameField Full ]
+        , Tuple "%u" [ FormatItem $ WeekdayNumberField Monday 1 ]
+        , Tuple "%w" [ FormatItem $ WeekdayNumberField Sunday 0 ]
         ]
   suite "Parse date formatters" do
     void $ for cases \(Tuple fmt expected) -> do
