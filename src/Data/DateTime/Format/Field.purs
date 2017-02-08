@@ -80,6 +80,7 @@ data DateField
   -- | In other words, `shift` is the nominal start of the week, and `base`
   -- | is the corresponding day number.
   | WeekdayNumberField Weekday Int
+  | LocalDateField
 
 derive instance genericDateField :: Generic DateField
 

@@ -85,6 +85,8 @@ writeDateField :: forall d. FormatDate d
                -> _
                -> d
                -> String
+writeDateField LocalDateField locale =
+  writeDateFormat locale.dateFmt locale
 writeDateField (YearField Full padding) locale =
       getYear
   >>> fromEnum

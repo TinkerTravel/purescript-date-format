@@ -13,6 +13,7 @@ type WithDateFormatLocale r =
   , shortWeekdayName :: Weekday -> String
   , monthName :: Month -> String
   , shortMonthName :: Month -> String
+  , dateFmt :: DateFormatSpec
   | r
   )
 
@@ -43,6 +44,7 @@ defDateTimeFormatLocale =
   , pmName: "PM"
   , timeFmt24h: defTimeFormat24h
   , timeFmt12h: defTimeFormat12h
+  , dateFmt: defDateFormat
   }
 
 type WeekdayNames =
@@ -105,11 +107,13 @@ mkDateTimeFormatLocale :: WeekdayNames
                        -> String
                        -> String
                        -> String
+                       -> String
                        -> DateTimeFormatLocale
 mkDateTimeFormatLocale weekdays shortWeekdays
                        months shortMonths
                        am pm
-                       fmt24h fmt12h =
+                       fmt24h fmt12h
+                       fmtDate =
   { weekdayName: mkWeekdayLookup weekdays
   , shortWeekdayName: mkWeekdayLookup shortWeekdays
   , monthName: mkMonthLookup months
@@ -118,4 +122,5 @@ mkDateTimeFormatLocale weekdays shortWeekdays
   , pmName: pm
   , timeFmt24h: unLeft defTimeFormat24h $ parseTimeFormat fmt24h
   , timeFmt12h: unLeft defTimeFormat12h $ parseTimeFormat fmt12h
+  , dateFmt: unLeft defDateFormat $ parseDateFormat fmtDate
   }

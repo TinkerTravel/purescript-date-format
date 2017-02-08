@@ -118,6 +118,7 @@ dateParserSuite = do
         , Tuple "%m" [ FormatItem $ MonthNumberField (PadWith '0') ]
 
         , Tuple "%d" [ FormatItem $ DayField (PadWith '0') ]
+        , Tuple "%-d" [ FormatItem $ DayField NoPadding ]
         , Tuple "%e" [ FormatItem $ DayField (PadWith ' ') ]
 
         , Tuple "%a" [ FormatItem $ WeekdayNameField Abbreviated DefaultCasing]

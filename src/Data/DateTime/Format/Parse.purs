@@ -120,6 +120,7 @@ mkDateField caseMay padMay c =
       , mkDateField Nothing Nothing 'd'
       ]
     -- `%x`:   as `dateFmt` `locale` (e.g. `%m/%d/%y`)
+    'x' -> pure [FormatItem LocalDateField]
 
 
     ---- Year
@@ -139,14 +140,14 @@ mkDateField caseMay padMay c =
     'b' -> pure [FormatItem $ MonthNameField Abbreviated (fromMaybe DefaultCasing caseMay)]
     'h' -> pure [FormatItem $ MonthNameField Abbreviated (fromMaybe DefaultCasing caseMay)]
     -- `%m`:   month of year, 0-padded to two chars, `01` - `12`
-    'm' -> pure [FormatItem $ MonthNumberField (PadWith '0')]
+    'm' -> pure [FormatItem $ MonthNumberField (fromMaybe (PadWith '0') padMay)]
 
 
     ---- Day
     -- `%d`:   day of month, 0-padded to two chars, `01` - `31`
-    'd' -> pure [FormatItem $ DayField (PadWith '0')]
+    'd' -> pure [FormatItem $ DayField (fromMaybe (PadWith '0') padMay)]
     -- `%e`:   day of month, space-padded to two chars, ` 1` - `31`
-    'e' -> pure [FormatItem $ DayField (PadWith ' ')]
+    'e' -> pure [FormatItem $ DayField (fromMaybe (PadWith ' ') padMay)]
     -- `%j`:   day of year, 0-padded to three chars, `001` - `366`
 
     ---- Weekday

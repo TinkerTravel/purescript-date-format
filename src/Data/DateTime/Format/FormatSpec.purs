@@ -44,3 +44,12 @@ defTimeFormat12h =
   , Literal " "
   , FormatItem $ AMPMField DefaultCasing
   ]
+
+defDateFormat :: DateFormatSpec
+defDateFormat =
+  [ FormatItem $ YearField Full (PadWith '0')
+  , Literal "-"
+  , FormatItem $ MonthNumberField (PadWith '0')
+  , Literal "-"
+  , FormatItem $ DayField (PadWith '0')
+  ]
