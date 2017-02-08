@@ -17,6 +17,8 @@ instance showFormatItem :: Show a => Show (FormatItem a) where
 
 derive instance eqFormatItem :: Eq a => Eq (FormatItem a)
 
+derive instance functorFormatItem :: Functor FormatItem
+
 type DateFormatSpec = Array (FormatItem DateField)
 
 type TimeFormatSpec = Array (FormatItem TimeField)

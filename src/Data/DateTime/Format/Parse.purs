@@ -9,6 +9,7 @@ import Text.Parsing.Parser.Combinators as P
 import Text.Parsing.Parser.String as P
 import Data.String (fromCharArray)
 import Data.Array as Array
+import Data.Foldable (fold)
 import Control.Alt (class Alt, alt, (<|>))
 import Data.Maybe (Maybe (..), fromMaybe)
 import Data.Either (Either (..))
@@ -37,40 +38,42 @@ parseDateTimeFormat input =
 
 
 pDateFormat :: P.Parser String DateFormatSpec
-pDateFormat = Array.many pDateItem <* P.eof
+pDateFormat = fold <$> Array.many pDateItem <* P.eof
 
 pTimeFormat :: P.Parser String TimeFormatSpec
-pTimeFormat = Array.many pTimeItem <* P.eof
+pTimeFormat = fold <$> Array.many pTimeItem <* P.eof
 
 pDateTimeFormat :: P.Parser String DateTimeFormatSpec
-pDateTimeFormat = Array.many pDateTimeItem <* P.eof
+pDateTimeFormat = fold <$> Array.many pDateTimeItem <* P.eof
 
 
-pDateItem :: P.Parser String (FormatItem DateField)
+pDateItem :: P.Parser String (Array (FormatItem DateField))
 pDateItem = pDateField <|> pLiteral
 
-pTimeItem :: P.Parser String (FormatItem TimeField)
+pTimeItem :: P.Parser String (Array (FormatItem TimeField))
 pTimeItem = pTimeField <|> pLiteral
 
-pDateTimeItem :: P.Parser String (FormatItem DateTimeField)
+pDateTimeItem :: P.Parser String (Array (FormatItem DateTimeField))
 pDateTimeItem = pDateTimeField <|> pLiteral
 
-pLiteral :: forall a. P.Parser String (FormatItem a)
-pLiteral = Literal <$> stringOf1 (P.noneOf ['%'])
+pLiteral :: forall a. P.Parser String (Array (FormatItem a))
+pLiteral = Array.singleton <<< Literal <$> stringOf1 (P.noneOf ['%'])
 
 -- http://www.cplusplus.com/reference/ctime/strftime/
 -- http://hackage.haskell.org/package/time-1.7.0.1/docs/Data-Time-Format.html
 
-pField :: forall a. (Maybe Padding -> Char -> P.Parser String a) -> P.Parser String (FormatItem a)
+pField :: forall a.
+          (Maybe Padding -> Char -> P.Parser String (Array (FormatItem a)))
+       -> P.Parser String (Array (FormatItem a))
 pField inner = do
   P.char '%'
   pad <- P.optionMaybe pPadding
   c <- P.anyChar
   case c of
-    '%' -> pure (Literal "%")
-    't' -> pure (Literal "\t")
-    'n' -> pure (Literal "\n")
-    c -> FormatItem <$> inner pad c
+    '%' -> pure [Literal "%"]
+    't' -> pure [Literal "\t"]
+    'n' -> pure [Literal "\n"]
+    c -> inner pad c
 
 pPadding :: P.Parser String Padding
 pPadding =
@@ -78,34 +81,34 @@ pPadding =
   <|> (P.try $ P.char '_' *> pure (PadWith ' '))
   <|> (P.try $ P.char '0' *> pure (PadWith '0'))
 
-pDateField :: P.Parser String (FormatItem DateField)
+pDateField :: P.Parser String (Array (FormatItem DateField))
 pDateField = pField mkDateField
 
-pTimeField :: P.Parser String (FormatItem TimeField)
+pTimeField :: P.Parser String (Array (FormatItem TimeField))
 pTimeField = pField mkTimeField
 
-pDateTimeField :: P.Parser String (FormatItem DateTimeField)
+pDateTimeField :: P.Parser String (Array (FormatItem DateTimeField))
 pDateTimeField = pField mkDateTimeField
 
-mkDateField :: Maybe Padding -> Char -> P.Parser String DateField
+mkDateField :: Maybe Padding -> Char -> P.Parser String (Array (FormatItem DateField))
 mkDateField padMay c =
   case c of
-    'y' -> pure $ YearField Abbreviated (fromMaybe (PadWith '0') padMay)
-    'Y' -> pure $ YearField Full (fromMaybe NoPadding padMay)
+    'y' -> pure [FormatItem $ YearField Abbreviated (fromMaybe (PadWith '0') padMay)]
+    'Y' -> pure [FormatItem $ YearField Full (fromMaybe NoPadding padMay)]
     -- TODO: more specifiers
     _ -> P.fail $ "Invalid date format specifier " <> show c
 
-mkTimeField :: Maybe Padding -> Char -> P.Parser String TimeField
+mkTimeField :: Maybe Padding -> Char -> P.Parser String (Array (FormatItem TimeField))
 mkTimeField padMay c =
   case c of
-    'H' -> pure $ HoursField Hours24 (fromMaybe (PadWith '0') padMay)
+    'H' -> pure [FormatItem $ HoursField Hours24 (fromMaybe (PadWith '0') padMay)]
     -- TODO: more specifiers
     _ -> P.fail $ "Invalid time format specifier " <> show c
 
 mkDateTimeField :: Maybe Padding
                 -> Char
-                -> P.Parser String DateTimeField
+                -> P.Parser String (Array (FormatItem DateTimeField))
 mkDateTimeField padMay c =
-      (TimeField <$> mkTimeField padMay c)
-  <|> (DateField <$> mkDateField padMay c)
+      (map (map TimeField) <$> mkTimeField padMay c)
+  <|> (map (map DateField) <$> mkDateField padMay c)
   <|> (P.fail $ "Invalid date/time format specifier " <> show c)
