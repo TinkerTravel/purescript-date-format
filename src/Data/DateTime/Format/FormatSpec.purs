@@ -24,3 +24,23 @@ type DateFormatSpec = Array (FormatItem DateField)
 type TimeFormatSpec = Array (FormatItem TimeField)
 
 type DateTimeFormatSpec = Array (FormatItem DateTimeField)
+
+defTimeFormat24h :: TimeFormatSpec
+defTimeFormat24h =
+  [ FormatItem $ HourField Hours24 (PadWith '0')
+  , Literal ":"
+  , FormatItem $ MinuteField (PadWith '0')
+  , Literal ":"
+  , FormatItem $ SecondField (PadWith '0')
+  ]
+
+defTimeFormat12h :: TimeFormatSpec
+defTimeFormat12h =
+  [ FormatItem $ HourField Hours12 (PadWith '0')
+  , Literal ":"
+  , FormatItem $ MinuteField (PadWith '0')
+  , Literal ":"
+  , FormatItem $ SecondField (PadWith '0')
+  , Literal " "
+  , FormatItem $ AMPMField DefaultCasing
+  ]

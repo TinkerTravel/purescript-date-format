@@ -194,7 +194,9 @@ mkTimeField caseMay padMay c =
       ]
 
     -- `%X`:   as `timeFmt` `locale` (e.g. `%H:%M:%S`)
+    'X' -> pure [FormatItem Local24hTimeField]
     -- `%r`:   as `time12Fmt` `locale` (e.g. `%I:%M:%S %p`)
+    'r' -> pure [FormatItem Local12hTimeField]
 
     -- `%P`:   day-half of day from (`amPm` `locale`), converted to lowercase,
     --     `am`, `pm`

@@ -58,6 +58,8 @@ data TimeField
   | SecondField Padding
   | MillisecondsField Padding
   | AMPMField Casing
+  | Local24hTimeField
+  | Local12hTimeField
 
 derive instance genericTimeField :: Generic TimeField
 

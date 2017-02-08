@@ -74,12 +74,16 @@ strangeLocaleSuite = do
           }
           "Early"
           "Late"
+          "%H|%M|%S"
+          "%-I|%M|%S %p"
   let cases =
         [ Tuple "%A" "Toosday"
         , Tuple "%a" "Too"
         , Tuple "%p" "Late"
         , Tuple "%B" "Fay's Brother"
         , Tuple "%b" "Fay"
+        , Tuple "%X" "13|05|01"
+        , Tuple "%r" "1|05|01 Late"
         ]
   suite "Formatter test" do
     void $ for cases \(Tuple fmt expected) -> do

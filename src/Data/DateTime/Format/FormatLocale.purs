@@ -4,6 +4,9 @@ where
 import Prelude
 import Data.Date (Weekday (..), Month (..))
 import Data.String as String
+import Data.DateTime.Format.FormatSpec
+import Data.DateTime.Format.Parse
+import Data.Either (Either (..))
 
 type WithDateFormatLocale r =
   ( weekdayName :: Weekday -> String
@@ -16,6 +19,8 @@ type WithDateFormatLocale r =
 type WithTimeFormatLocale r =
   ( amName :: String
   , pmName :: String
+  , timeFmt24h :: TimeFormatSpec
+  , timeFmt12h :: TimeFormatSpec
   | r
   )
 
@@ -36,6 +41,8 @@ defDateTimeFormatLocale =
   , shortMonthName: String.take 3 <<< show
   , amName: "AM"
   , pmName: "PM"
+  , timeFmt24h: defTimeFormat24h
+  , timeFmt12h: defTimeFormat12h
   }
 
 type WeekdayNames =
@@ -86,20 +93,29 @@ mkMonthLookup names October = names.october
 mkMonthLookup names November = names.november
 mkMonthLookup names December = names.december
 
+unLeft :: forall a b. a -> Either b a -> a
+unLeft d (Left _) = d
+unLeft _ (Right a) = a
+
 mkDateTimeFormatLocale :: WeekdayNames
                        -> WeekdayNames
                        -> MonthNames
                        -> MonthNames
                        -> String
                        -> String
+                       -> String
+                       -> String
                        -> DateTimeFormatLocale
 mkDateTimeFormatLocale weekdays shortWeekdays
                        months shortMonths
-                       am pm =
+                       am pm
+                       fmt24h fmt12h =
   { weekdayName: mkWeekdayLookup weekdays
   , shortWeekdayName: mkWeekdayLookup shortWeekdays
   , monthName: mkMonthLookup months
   , shortMonthName: mkMonthLookup shortMonths
   , amName: am
   , pmName: pm
+  , timeFmt24h: unLeft defTimeFormat24h $ parseTimeFormat fmt24h
+  , timeFmt12h: unLeft defTimeFormat12h $ parseTimeFormat fmt12h
   }

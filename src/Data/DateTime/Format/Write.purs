@@ -134,6 +134,10 @@ writeTimeField :: forall t. FormatTime t
                -> _
                -> t
                -> String
+writeTimeField Local24hTimeField locale =
+  writeTimeFormat locale.timeFmt24h locale
+writeTimeField Local12hTimeField locale =
+  writeTimeFormat locale.timeFmt12h locale
 writeTimeField (HourField Hours24 padding) locale =
       getHour
   >>> fromEnum
