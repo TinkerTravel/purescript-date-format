@@ -91,23 +91,27 @@ writeDateField (MonthNumberField padding) =
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeDateField (MonthNameField Abbreviated) =
+writeDateField (MonthNameField Abbreviated casing) =
       getMonth
   >>> shortMonthName
-writeDateField (MonthNameField Full) =
+  >>> applyCasing casing
+writeDateField (MonthNameField Full casing) =
       getMonth
   >>> fullMonthName
+  >>> applyCasing casing
 writeDateField (DayField padding) =
       getDay
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeDateField (WeekdayNameField Abbreviated) =
+writeDateField (WeekdayNameField Abbreviated casing) =
       getWeekday
   >>> shortWeekdayName
-writeDateField (WeekdayNameField Full) =
+  >>> applyCasing casing
+writeDateField (WeekdayNameField Full casing) =
       getWeekday
   >>> fullWeekdayName
+  >>> applyCasing casing
 writeDateField (WeekdayNumberField shift base) =
       getWeekday
   >>> fromEnum
@@ -145,23 +149,15 @@ writeTimeField (MillisecondsField padding) =
   >>> fromEnum
   >>> show
   >>> applyPadding 3 padding
-writeTimeField AMPMField =
+writeTimeField (AMPMField casing) =
       getHour
   >>> ampmMarker
+  >>> applyCasing casing
 
 ampmMarker :: Hour -> String
 ampmMarker h
   | fromEnum h >= 12 = "PM"
   | otherwise = "AM"
-
-  {-
-  = HoursField HoursStyle Padding
-  | MinutesField Padding
-  | SecondsField Padding
-  | MillisecondsField
-  | AMPMField
-  -}
-
 
 wrap12 :: Int -> Int
 wrap12 i
@@ -184,6 +180,11 @@ applyPadding width padding str =
           npad = max 0 $ width - l
           pad = String.fromCharArray $ Array.replicate npad c
       in pad <> str
+
+applyCasing :: Casing -> String -> String
+applyCasing DefaultCasing str = str
+applyCasing AllCaps str = String.toUpper str
+applyCasing LowerCase str = String.toLower str
 
 shortMonthName :: Month -> String
 shortMonthName = show >>> String.take 3

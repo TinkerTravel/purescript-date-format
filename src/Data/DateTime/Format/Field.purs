@@ -17,6 +17,19 @@ instance showHoursStyle :: Show HoursStyle where
 derive instance eqHoursStyle :: Eq HoursStyle
 
 
+data Casing
+  = DefaultCasing
+  | AllCaps
+  | LowerCase
+
+derive instance genericCasing :: Generic Casing
+
+instance showCasing :: Show Casing where
+  show = gShow
+
+derive instance eqCasing :: Eq Casing
+
+
 data Padding
   = NoPadding
   | PadWith Char
@@ -44,7 +57,7 @@ data TimeField
   | MinutesField Padding
   | SecondsField Padding
   | MillisecondsField Padding
-  | AMPMField
+  | AMPMField Casing
 
 derive instance genericTimeField :: Generic TimeField
 
@@ -56,9 +69,9 @@ derive instance eqTimeField :: Eq TimeField
 data DateField
   = YearField Abbreviated Padding
   | MonthNumberField Padding
-  | MonthNameField Abbreviated
+  | MonthNameField Abbreviated Casing
   | DayField Padding
-  | WeekdayNameField Abbreviated
+  | WeekdayNameField Abbreviated Casing
   -- | `WeekdayNumberField shift base` gets a weekday number such that
   -- | `shift` aligns with `base`, and the resulting number is in the
   -- | range `[base..base+7)`.

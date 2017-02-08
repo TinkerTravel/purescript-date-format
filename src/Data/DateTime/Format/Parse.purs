@@ -65,23 +65,29 @@ pLiteral = Array.singleton <<< Literal <$> stringOf1 (P.noneOf ['%'])
 -- http://hackage.haskell.org/package/time-1.7.0.1/docs/Data-Time-Format.html
 
 pField :: forall a.
-          (Maybe Padding -> Char -> P.Parser String (Array (FormatItem a)))
+          (Maybe Casing -> Maybe Padding -> Char -> P.Parser String (Array (FormatItem a)))
        -> P.Parser String (Array (FormatItem a))
 pField inner = do
   P.char '%'
   pad <- P.optionMaybe pPadding
+  casing <- P.optionMaybe pCasing
   c <- P.anyChar
   case c of
     '%' -> pure [Literal "%"]
     't' -> pure [Literal "\t"]
     'n' -> pure [Literal "\n"]
-    c -> inner pad c
+    c -> inner casing pad c
 
 pPadding :: P.Parser String Padding
 pPadding =
       (P.try $ P.char '-' *> pure NoPadding)
   <|> (P.try $ P.char '_' *> pure (PadWith ' '))
   <|> (P.try $ P.char '0' *> pure (PadWith '0'))
+
+pCasing :: P.Parser String Casing
+pCasing =
+      (P.try $ P.char '^' *> pure AllCaps)
+  <|> (P.try $ P.char '#' *> pure LowerCase)
 
 pDateField :: P.Parser String (Array (FormatItem DateField))
 pDateField = pField mkDateField
@@ -92,26 +98,26 @@ pTimeField = pField mkTimeField
 pDateTimeField :: P.Parser String (Array (FormatItem DateTimeField))
 pDateTimeField = pField mkDateTimeField
 
-mkDateField :: Maybe Padding -> Char -> P.Parser String (Array (FormatItem DateField))
-mkDateField padMay c =
+mkDateField :: Maybe Casing -> Maybe Padding -> Char -> P.Parser String (Array (FormatItem DateField))
+mkDateField caseMay padMay c =
   case c of
     ---- Composite dates
     -- `%D`:   same as `%m/%d/%y`
     'D' -> fold <$> sequence
-      [ mkDateField Nothing 'm'
+      [ mkDateField Nothing Nothing 'm'
       , pure [Literal "/"]
-      , mkDateField Nothing 'd'
+      , mkDateField Nothing Nothing 'd'
       , pure [Literal "/"]
-      , mkDateField Nothing 'y'
+      , mkDateField Nothing Nothing 'y'
       ]
 
     -- `%F`:   same as `%Y-%m-%d`
     'F' -> fold <$> sequence
-      [ mkDateField Nothing 'Y'
+      [ mkDateField Nothing Nothing 'Y'
       , pure [Literal "-"]
-      , mkDateField Nothing 'm'
+      , mkDateField Nothing Nothing 'm'
       , pure [Literal "-"]
-      , mkDateField Nothing 'd'
+      , mkDateField Nothing Nothing 'd'
       ]
     -- `%x`:   as `dateFmt` `locale` (e.g. `%m/%d/%y`)
 
@@ -127,11 +133,11 @@ mkDateField padMay c =
     ---- Month
     -- `%B`:   month name, long form (`fst` from `months` `locale`), `January` -
     --         `December`
-    'B' -> pure [FormatItem $ MonthNameField Full]
+    'B' -> pure [FormatItem $ MonthNameField Full (fromMaybe DefaultCasing caseMay)]
     -- `%b`,
     -- `%h`:   month name, short form (`snd` from `months` `locale`), `Jan` - `Dec`
-    'b' -> pure [FormatItem $ MonthNameField Abbreviated]
-    'h' -> pure [FormatItem $ MonthNameField Abbreviated]
+    'b' -> pure [FormatItem $ MonthNameField Abbreviated (fromMaybe DefaultCasing caseMay)]
+    'h' -> pure [FormatItem $ MonthNameField Abbreviated (fromMaybe DefaultCasing caseMay)]
     -- `%m`:   month of year, 0-padded to two chars, `01` - `12`
     'm' -> pure [FormatItem $ MonthNumberField (PadWith '0')]
 
@@ -149,10 +155,10 @@ mkDateField padMay c =
     -- `%w`:   day of week number, `0` (= Sunday) - `6` (= Saturday)
     'w' -> pure [FormatItem $ WeekdayNumberField Sunday 0]
     -- `%a`:   day of week, short form (`snd` from `wDays` `locale`), `Sun` - `Sat`
-    'a' -> pure [FormatItem $ WeekdayNameField Abbreviated]
+    'a' -> pure [FormatItem $ WeekdayNameField Abbreviated (fromMaybe DefaultCasing caseMay)]
     -- `%A`:   day of week, long form (`fst` from `wDays` `locale`), `Sunday` -
     --         `Saturday`
-    'A' -> pure [FormatItem $ WeekdayNameField Full]
+    'A' -> pure [FormatItem $ WeekdayNameField Full (fromMaybe DefaultCasing caseMay)]
 
     ---- Week numbers
     -- `%G`:   year for Week Date format, no padding. Note `%0G` and `%_G` pad to
@@ -169,29 +175,32 @@ mkDateField padMay c =
     --         0-padded to two chars, `00` - `53`
     _ -> P.fail $ "Invalid date format specifier " <> show c
 
-mkTimeField :: Maybe Padding -> Char -> P.Parser String (Array (FormatItem TimeField))
-mkTimeField padMay c =
+mkTimeField :: Maybe Casing -> Maybe Padding -> Char -> P.Parser String (Array (FormatItem TimeField))
+mkTimeField caseMay padMay c =
   case c of
     -- `%R`:   same as `%H:%M`
     'R' -> fold <$> sequence
-      [ mkTimeField Nothing 'H'
+      [ mkTimeField Nothing Nothing 'H'
       , pure [Literal ":"]
-      , mkTimeField Nothing 'M'
+      , mkTimeField Nothing Nothing 'M'
       ]
     -- `%T`:   same as `%H:%M:%S`
     'T' -> fold <$> sequence
-      [ mkTimeField Nothing 'H'
+      [ mkTimeField Nothing Nothing 'H'
       , pure [Literal ":"]
-      , mkTimeField Nothing 'M'
+      , mkTimeField Nothing Nothing 'M'
       , pure [Literal ":"]
-      , mkTimeField Nothing 'S'
+      , mkTimeField Nothing Nothing 'S'
       ]
 
     -- `%X`:   as `timeFmt` `locale` (e.g. `%H:%M:%S`)
     -- `%r`:   as `time12Fmt` `locale` (e.g. `%I:%M:%S %p`)
+
     -- `%P`:   day-half of day from (`amPm` `locale`), converted to lowercase,
     --     `am`, `pm`
+    'P' -> pure [FormatItem $ AMPMField (fromMaybe LowerCase caseMay)]
     -- `%p`:   day-half of day from (`amPm` `locale`), `AM`, `PM`
+    'p' -> pure [FormatItem $ AMPMField (fromMaybe DefaultCasing caseMay)]
 
     -- `%H`:   hour of day (24-hour), 0-padded to two chars, `00` - `23`
     'H' -> pure [FormatItem $ HoursField Hours24 (fromMaybe (PadWith '0') padMay)]
@@ -214,12 +223,13 @@ mkTimeField padMay c =
     --     the empty string.
     _ -> P.fail $ "Invalid time format specifier " <> show c
 
-mkDateTimeField :: Maybe Padding
+mkDateTimeField :: Maybe Casing
+                -> Maybe Padding
                 -> Char
                 -> P.Parser String (Array (FormatItem DateTimeField))
-mkDateTimeField padMay c =
-      (map (map TimeField) <$> mkTimeField padMay c)
-  <|> (map (map DateField) <$> mkDateField padMay c)
+mkDateTimeField caseMay padMay c =
+      (map (map TimeField) <$> mkTimeField caseMay padMay c)
+  <|> (map (map DateField) <$> mkDateField caseMay padMay c)
   <|> (P.fail $ "Invalid date/time format specifier " <> show c)
 
 {-

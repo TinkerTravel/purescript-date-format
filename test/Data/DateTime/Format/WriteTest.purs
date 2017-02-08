@@ -104,7 +104,20 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [ FormatItem $ HoursField Hours12 NoPadding
-                , FormatItem $ AMPMField
+                , FormatItem $ AMPMField DefaultCasing
+                ]
+                <$> (Time <$> toEnum 13
+                          <*> toEnum 37
+                          <*> toEnum 23
+                          <*> toEnum 456)
+        Assert.equal expected actual
+
+      test "hour (12-based, lowercase am/pm)" do
+        let expected = Just "1pm"
+            actual =
+              writeTimeFormat
+                [ FormatItem $ HoursField Hours12 NoPadding
+                , FormatItem $ AMPMField LowerCase
                 ]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
@@ -261,7 +274,16 @@ dateWriterSuite =
             expected = "March"
             actual =
               writeDateFormat
-                [FormatItem $ MonthNameField Full]
+                [FormatItem $ MonthNameField Full DefaultCasing]
+                sampleDate
+        Assert.equal expected actual
+
+      test "full month name, all-caps" do
+        let sampleDate = canonicalDate (mkYear 2017) March (mkDay 15)
+            expected = "MARCH"
+            actual =
+              writeDateFormat
+                [FormatItem $ MonthNameField Full AllCaps]
                 sampleDate
         Assert.equal expected actual
 
@@ -270,7 +292,7 @@ dateWriterSuite =
             expected = "Mar"
             actual =
               writeDateFormat
-                [FormatItem $ MonthNameField Abbreviated]
+                [FormatItem $ MonthNameField Abbreviated DefaultCasing]
                 sampleDate
         Assert.equal expected actual
 
@@ -342,7 +364,7 @@ dateWriterSuite =
             expected = "Tuesday"
             actual =
               writeDateFormat
-                [FormatItem $ WeekdayNameField Full]
+                [FormatItem $ WeekdayNameField Full DefaultCasing]
                 sampleDate
         Assert.equal expected actual
 
@@ -351,7 +373,7 @@ dateWriterSuite =
             expected = "Tue"
             actual =
               writeDateFormat
-                [FormatItem $ WeekdayNameField Abbreviated]
+                [FormatItem $ WeekdayNameField Abbreviated DefaultCasing]
                 sampleDate
         Assert.equal expected actual
 

@@ -3,6 +3,8 @@ where
 
 import Prelude
 import Data.DateTime
+import Data.DateTime.Instant (Instant)
+import Data.DateTime.Instant as Instant
 
 class FormatTime a where
   getHour :: a -> Hour
@@ -16,7 +18,8 @@ class FormatDate a where
   getDay :: a -> Day
   getWeekday :: a -> Weekday
 
-class (FormatTime a, FormatDate a) <= FormatDateTime a
+class (FormatTime a, FormatDate a) <= FormatDateTime a where
+  getTimestamp :: a -> Instant
 
 instance formatDateDate :: FormatDate Date where
   getYear = year
@@ -43,3 +46,4 @@ instance formatTimeDateTime :: FormatTime DateTime where
   getMillisecond = millisecond <<< time
 
 instance formatDateTimeDateTime :: FormatDateTime DateTime where
+  getTimestamp = Instant.fromDateTime

@@ -16,6 +16,7 @@ parserSuite = do
   literalParserSuite
   timeParserSuite
   dateParserSuite
+  miscParserSuite
 
 literalParserSuite :: forall e. TestSuite e
 literalParserSuite = do
@@ -33,6 +34,23 @@ literalParserSuite = do
           (Right expected)
           (parseDateTimeFormat fmt)
 
+miscParserSuite :: forall e. TestSuite e
+miscParserSuite = do
+  let cases =
+        [ Tuple "%^a" [FormatItem <<< DateField $ WeekdayNameField Abbreviated AllCaps]
+        , Tuple "%#A" [FormatItem <<< DateField $ WeekdayNameField Full LowerCase]
+        -- ignore padding specifier on named items:
+        , Tuple "%0#A" [FormatItem <<< DateField $ WeekdayNameField Full LowerCase]
+        -- ignore casing specifier on numeric fields:
+        , Tuple "%_#Y" [FormatItem <<< DateField $ YearField Full (PadWith ' ')]
+        ]
+  suite "Parse miscellaneous date/time cases" do
+    void $ for cases \(Tuple fmt expected) -> do
+      test (if fmt == "" then "<empty format>" else fmt) do
+        Assert.equal
+          (Right expected)
+          (parseDateTimeFormat fmt)
+
 timeParserSuite :: forall e. TestSuite e
 timeParserSuite = do
   let cases =
@@ -42,6 +60,9 @@ timeParserSuite = do
         , Tuple "%S" [ FormatItem (SecondsField (PadWith '0'))]
         , Tuple "%I" [ FormatItem (HoursField Hours12 (PadWith '0'))]
         , Tuple "%l" [ FormatItem (HoursField Hours12 (PadWith ' '))]
+        , Tuple "%p" [ FormatItem (AMPMField DefaultCasing) ]
+        , Tuple "%P" [ FormatItem (AMPMField LowerCase) ]
+
         , Tuple "%R" [ FormatItem (HoursField Hours24 (PadWith '0'))
                      , Literal ":"
                      , FormatItem (MinutesField (PadWith '0'))
@@ -91,16 +112,16 @@ dateParserSuite = do
         , Tuple "%Y" [ FormatItem $ YearField Full NoPadding ]
         , Tuple "%y" [ FormatItem $ YearField Abbreviated (PadWith '0') ]
 
-        , Tuple "%B" [ FormatItem $ MonthNameField Full ]
-        , Tuple "%b" [ FormatItem $ MonthNameField Abbreviated ]
-        , Tuple "%h" [ FormatItem $ MonthNameField Abbreviated ]
+        , Tuple "%B" [ FormatItem $ MonthNameField Full DefaultCasing]
+        , Tuple "%b" [ FormatItem $ MonthNameField Abbreviated DefaultCasing]
+        , Tuple "%h" [ FormatItem $ MonthNameField Abbreviated DefaultCasing]
         , Tuple "%m" [ FormatItem $ MonthNumberField (PadWith '0') ]
 
         , Tuple "%d" [ FormatItem $ DayField (PadWith '0') ]
         , Tuple "%e" [ FormatItem $ DayField (PadWith ' ') ]
 
-        , Tuple "%a" [ FormatItem $ WeekdayNameField Abbreviated ]
-        , Tuple "%A" [ FormatItem $ WeekdayNameField Full ]
+        , Tuple "%a" [ FormatItem $ WeekdayNameField Abbreviated DefaultCasing]
+        , Tuple "%A" [ FormatItem $ WeekdayNameField Full DefaultCasing]
         , Tuple "%u" [ FormatItem $ WeekdayNumberField Monday 1 ]
         , Tuple "%w" [ FormatItem $ WeekdayNumberField Sunday 0 ]
         ]
