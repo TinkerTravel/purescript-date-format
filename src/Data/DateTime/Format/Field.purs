@@ -53,9 +53,9 @@ instance showAbbreviated :: Show Abbreviated where
 derive instance eqAbbreviated :: Eq Abbreviated
 
 data TimeField
-  = HoursField HoursStyle Padding
-  | MinutesField Padding
-  | SecondsField Padding
+  = HourField HoursStyle Padding
+  | MinuteField Padding
+  | SecondField Padding
   | MillisecondsField Padding
   | AMPMField Casing
 

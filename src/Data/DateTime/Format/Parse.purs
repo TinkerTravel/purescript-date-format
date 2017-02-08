@@ -203,19 +203,19 @@ mkTimeField caseMay padMay c =
     'p' -> pure [FormatItem $ AMPMField (fromMaybe DefaultCasing caseMay)]
 
     -- `%H`:   hour of day (24-hour), 0-padded to two chars, `00` - `23`
-    'H' -> pure [FormatItem $ HoursField Hours24 (fromMaybe (PadWith '0') padMay)]
+    'H' -> pure [FormatItem $ HourField Hours24 (fromMaybe (PadWith '0') padMay)]
     -- `%k`:   hour of day (24-hour), space-padded to two chars, ` 0` - `23`
-    'k' -> pure [FormatItem $ HoursField Hours24 (fromMaybe (PadWith ' ') padMay)]
+    'k' -> pure [FormatItem $ HourField Hours24 (fromMaybe (PadWith ' ') padMay)]
     -- `%I`:   hour of day-half (12-hour), 0-padded to two chars, `01` - `12`
-    'I' -> pure [FormatItem $ HoursField Hours12 (fromMaybe (PadWith '0') padMay)]
+    'I' -> pure [FormatItem $ HourField Hours12 (fromMaybe (PadWith '0') padMay)]
     -- `%l`:   hour of day-half (12-hour), space-padded to two chars, ` 1` - `12`
-    'l' -> pure [FormatItem $ HoursField Hours12 (fromMaybe (PadWith ' ') padMay)]
+    'l' -> pure [FormatItem $ HourField Hours12 (fromMaybe (PadWith ' ') padMay)]
 
     -- `%M`:   minute of hour, 0-padded to two chars, `00` - `59`
-    'M' -> pure [FormatItem $ MinutesField (fromMaybe (PadWith '0') padMay)]
+    'M' -> pure [FormatItem $ MinuteField (fromMaybe (PadWith '0') padMay)]
     -- `%S`:   second of minute (without decimal part), 0-padded to two chars, `00`
     --     - `60`
-    'S' -> pure [FormatItem $ SecondsField (fromMaybe (PadWith '0') padMay)]
+    'S' -> pure [FormatItem $ SecondField (fromMaybe (PadWith '0') padMay)]
     -- `%q`:   picosecond of second, 0-padded to twelve chars, `000000000000` -
     --     `999999999999`.
     -- `%Q`:   decimal point and fraction of second, up to 12 second decimals,

@@ -123,23 +123,23 @@ writeTimeField :: forall t. FormatTime t
                => TimeField
                -> t
                -> String
-writeTimeField (HoursField Hours24 padding) =
+writeTimeField (HourField Hours24 padding) =
       getHour
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeTimeField (HoursField Hours12 padding) =
+writeTimeField (HourField Hours12 padding) =
       getHour
   >>> fromEnum
   >>> wrap12
   >>> show
   >>> applyPadding 2 padding
-writeTimeField (MinutesField padding) =
+writeTimeField (MinuteField padding) =
       getMinute
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeTimeField (SecondsField padding) =
+writeTimeField (SecondField padding) =
       getSecond
   >>> fromEnum
   >>> show

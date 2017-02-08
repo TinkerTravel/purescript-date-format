@@ -48,7 +48,7 @@ dateTimeWriterSuite = do
               writeDateTimeFormat
                 [ FormatItem <<< DateField $ YearField Full NoPadding
                 , Literal "|"
-                , FormatItem <<< TimeField $ HoursField Hours24 NoPadding
+                , FormatItem <<< TimeField $ HourField Hours24 NoPadding
                 ] <$> sampleDT
         Assert.equal expected actual
 
@@ -70,7 +70,7 @@ timeWriterSuite =
         let expected = Just "13"
             actual =
               writeTimeFormat
-                [FormatItem $ HoursField Hours24 NoPadding]
+                [FormatItem $ HourField Hours24 NoPadding]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -81,7 +81,7 @@ timeWriterSuite =
         let expected = Just "1"
             actual =
               writeTimeFormat
-                [FormatItem $ HoursField Hours12 NoPadding]
+                [FormatItem $ HourField Hours12 NoPadding]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -92,7 +92,7 @@ timeWriterSuite =
         let expected = Just "01"
             actual =
               writeTimeFormat
-                [FormatItem $ HoursField Hours12 (PadWith '0')]
+                [FormatItem $ HourField Hours12 (PadWith '0')]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -103,7 +103,7 @@ timeWriterSuite =
         let expected = Just "1PM"
             actual =
               writeTimeFormat
-                [ FormatItem $ HoursField Hours12 NoPadding
+                [ FormatItem $ HourField Hours12 NoPadding
                 , FormatItem $ AMPMField DefaultCasing
                 ]
                 <$> (Time <$> toEnum 13
@@ -116,7 +116,7 @@ timeWriterSuite =
         let expected = Just "1pm"
             actual =
               writeTimeFormat
-                [ FormatItem $ HoursField Hours12 NoPadding
+                [ FormatItem $ HourField Hours12 NoPadding
                 , FormatItem $ AMPMField LowerCase
                 ]
                 <$> (Time <$> toEnum 13
@@ -129,7 +129,7 @@ timeWriterSuite =
         let expected = Just "37"
             actual =
               writeTimeFormat
-                [FormatItem $ MinutesField NoPadding]
+                [FormatItem $ MinuteField NoPadding]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -140,7 +140,7 @@ timeWriterSuite =
         let expected = Just "4"
             actual =
               writeTimeFormat
-                [FormatItem $ MinutesField NoPadding]
+                [FormatItem $ MinuteField NoPadding]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 4
                           <*> toEnum 23
@@ -151,7 +151,7 @@ timeWriterSuite =
         let expected = Just "04"
             actual =
               writeTimeFormat
-                [FormatItem $ MinutesField (PadWith '0')]
+                [FormatItem $ MinuteField (PadWith '0')]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 4
                           <*> toEnum 23
@@ -162,7 +162,7 @@ timeWriterSuite =
         let expected = Just "23"
             actual =
               writeTimeFormat
-                [FormatItem $ SecondsField NoPadding]
+                [FormatItem $ SecondField NoPadding]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -173,7 +173,7 @@ timeWriterSuite =
         let expected = Just "4"
             actual =
               writeTimeFormat
-                [FormatItem $ SecondsField NoPadding]
+                [FormatItem $ SecondField NoPadding]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 4
@@ -184,7 +184,7 @@ timeWriterSuite =
         let expected = Just "04"
             actual =
               writeTimeFormat
-                [FormatItem $ SecondsField (PadWith '0')]
+                [FormatItem $ SecondField (PadWith '0')]
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 4

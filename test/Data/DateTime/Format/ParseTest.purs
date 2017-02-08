@@ -54,28 +54,28 @@ miscParserSuite = do
 timeParserSuite :: forall e. TestSuite e
 timeParserSuite = do
   let cases =
-        [ Tuple "%H" [ FormatItem $ HoursField Hours24 (PadWith '0') ]
-        , Tuple "%k" [ FormatItem $ HoursField Hours24 (PadWith ' ') ]
-        , Tuple "%M" [ FormatItem (MinutesField (PadWith '0'))]
-        , Tuple "%S" [ FormatItem (SecondsField (PadWith '0'))]
-        , Tuple "%I" [ FormatItem (HoursField Hours12 (PadWith '0'))]
-        , Tuple "%l" [ FormatItem (HoursField Hours12 (PadWith ' '))]
+        [ Tuple "%H" [ FormatItem $ HourField Hours24 (PadWith '0') ]
+        , Tuple "%k" [ FormatItem $ HourField Hours24 (PadWith ' ') ]
+        , Tuple "%M" [ FormatItem (MinuteField (PadWith '0'))]
+        , Tuple "%S" [ FormatItem (SecondField (PadWith '0'))]
+        , Tuple "%I" [ FormatItem (HourField Hours12 (PadWith '0'))]
+        , Tuple "%l" [ FormatItem (HourField Hours12 (PadWith ' '))]
         , Tuple "%p" [ FormatItem (AMPMField DefaultCasing) ]
         , Tuple "%P" [ FormatItem (AMPMField LowerCase) ]
 
-        , Tuple "%R" [ FormatItem (HoursField Hours24 (PadWith '0'))
+        , Tuple "%R" [ FormatItem (HourField Hours24 (PadWith '0'))
                      , Literal ":"
-                     , FormatItem (MinutesField (PadWith '0'))
+                     , FormatItem (MinuteField (PadWith '0'))
                      ]
-        , Tuple "%T" [ FormatItem (HoursField Hours24 (PadWith '0'))
+        , Tuple "%T" [ FormatItem (HourField Hours24 (PadWith '0'))
                      , Literal ":"
-                     , FormatItem (MinutesField (PadWith '0'))
+                     , FormatItem (MinuteField (PadWith '0'))
                      , Literal ":"
-                     , FormatItem (SecondsField (PadWith '0'))
+                     , FormatItem (SecondField (PadWith '0'))
                      ]
-        , Tuple "%M-%H" [ FormatItem $ MinutesField (PadWith '0')
+        , Tuple "%M-%H" [ FormatItem $ MinuteField (PadWith '0')
                         , Literal "-"
-                        , FormatItem $ HoursField Hours24 (PadWith '0')
+                        , FormatItem $ HourField Hours24 (PadWith '0')
                         ]
         ]
   suite "Parse time formatters" do
