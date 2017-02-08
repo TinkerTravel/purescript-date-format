@@ -42,4 +42,6 @@ formatSuite = do
       test testName do
         Assert.equal
           (Right expected)
-          (maybe (Left "Invalid sample date") (formatDateTime fmt) $ sampleDT)
+          (maybe
+            (Left "Invalid sample date")
+            (formatDateTime fmt defDateTimeFormatLocale) $ sampleDT)

@@ -13,25 +13,28 @@ import Data.Either (Either (..))
 
 formatDate :: forall d. FormatDate d
            => String
+           -> _
            -> d
            -> Either String String
-formatDate fmt d = do
+formatDate fmt l d = do
   spec <- parseDateFormat fmt
-  pure $ writeDateFormat spec d
+  pure $ writeDateFormat spec l d
 
 formatTime :: forall d. FormatTime d
            => String
+           -> _
            -> d
            -> Either String String
-formatTime fmt d = do
+formatTime fmt l d = do
   spec <- parseTimeFormat fmt
-  pure $ writeTimeFormat spec d
+  pure $ writeTimeFormat spec l d
 
 formatDateTime :: forall d. FormatDateTime d
            => String
+           -> _
            -> d
            -> Either String String
-formatDateTime fmt d = do
+formatDateTime fmt l d = do
   spec <- parseDateTimeFormat fmt
-  pure $ writeDateTimeFormat spec d
+  pure $ writeDateTimeFormat spec l d
 

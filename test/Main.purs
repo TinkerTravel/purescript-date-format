@@ -12,6 +12,7 @@ import Test.Unit.Main (runTest)
 import Data.DateTime.Format.ParseTest (parserSuite)
 import Data.DateTime.Format.WriteTest (writerSuite)
 import Data.DateTime.Format.FormatTest (formatSuite)
+import Data.DateTime.Format.FormatLocaleTest (strangeLocaleSuite)
 
 main :: forall e. Eff (avar :: AVAR, testOutput :: TESTOUTPUT, console :: CONSOLE | e) Unit
 main = do
@@ -19,3 +20,4 @@ main = do
     parserSuite
     writerSuite
     formatSuite
+    strangeLocaleSuite

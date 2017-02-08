@@ -13,6 +13,7 @@ import Data.DateTime.Format
 import Data.Date (canonicalDate, Month (..), Year, Day, Weekday (..))
 import Data.Time (Time (..), Hour, Minute, Second, Millisecond)
 import Data.DateTime (DateTime (..))
+import Data.DateTime.Format.FormatLocale
 
 mkYear :: Int -> Year
 mkYear = toEnum >>> fromMaybe bottom
@@ -40,7 +41,11 @@ dateTimeWriterSuite = do
   suite "DateTime Writer" do
     test "empty format string" do
         let expected = Just ""
-            actual = writeDateTimeFormat [] <$> sampleDT
+            actual =
+              writeDateTimeFormat
+                []
+                defDateTimeFormatLocale
+                <$> sampleDT
         Assert.equal expected actual
     test "year + hour" do
         let expected = Just "2017|13"
@@ -49,7 +54,9 @@ dateTimeWriterSuite = do
                 [ FormatItem <<< DateField $ YearField Full NoPadding
                 , Literal "|"
                 , FormatItem <<< TimeField $ HourField Hours24 NoPadding
-                ] <$> sampleDT
+                ]
+                defDateTimeFormatLocale
+                <$> sampleDT
         Assert.equal expected actual
 
 timeWriterSuite :: forall e. TestSuite e
@@ -60,6 +67,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 []
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -71,6 +79,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ HourField Hours24 NoPadding]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -82,6 +91,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ HourField Hours12 NoPadding]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -93,6 +103,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ HourField Hours12 (PadWith '0')]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -106,6 +117,7 @@ timeWriterSuite =
                 [ FormatItem $ HourField Hours12 NoPadding
                 , FormatItem $ AMPMField DefaultCasing
                 ]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -119,6 +131,7 @@ timeWriterSuite =
                 [ FormatItem $ HourField Hours12 NoPadding
                 , FormatItem $ AMPMField LowerCase
                 ]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -130,6 +143,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ MinuteField NoPadding]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -141,6 +155,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ MinuteField NoPadding]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 4
                           <*> toEnum 23
@@ -152,6 +167,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ MinuteField (PadWith '0')]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 4
                           <*> toEnum 23
@@ -163,6 +179,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ SecondField NoPadding]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -174,6 +191,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ SecondField NoPadding]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 4
@@ -185,6 +203,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ SecondField (PadWith '0')]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 4
@@ -196,6 +215,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ MillisecondsField NoPadding]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -207,6 +227,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ MillisecondsField NoPadding]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -218,6 +239,7 @@ timeWriterSuite =
             actual =
               writeTimeFormat
                 [FormatItem $ MillisecondsField (PadWith '0')]
+                defDateTimeFormatLocale
                 <$> (Time <$> toEnum 13
                           <*> toEnum 37
                           <*> toEnum 23
@@ -231,7 +253,7 @@ dateWriterSuite =
       test "empty format string" do
         let sampleDate = canonicalDate (mkYear 2017) March (mkDay 15)
             expected = ""
-            actual = writeDateFormat [] sampleDate
+            actual = writeDateFormat [] defDateTimeFormatLocale sampleDate
         Assert.equal expected actual
 
       test "full year" do
@@ -240,6 +262,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ YearField Full NoPadding]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -249,6 +272,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ YearField Abbreviated NoPadding]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -275,6 +299,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ MonthNameField Full DefaultCasing]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -284,6 +309,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ MonthNameField Full AllCaps]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -293,6 +319,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ MonthNameField Abbreviated DefaultCasing]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -302,6 +329,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ MonthNumberField (PadWith '0')]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -311,6 +339,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ MonthNumberField (PadWith ' ')]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -320,6 +349,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ MonthNumberField NoPadding]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -329,6 +359,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ DayField (PadWith '0')]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -338,6 +369,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ DayField (PadWith '0')]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -347,6 +379,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ DayField (PadWith ' ')]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -356,6 +389,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ DayField NoPadding]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -365,6 +399,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ WeekdayNameField Full DefaultCasing]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -374,6 +409,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ WeekdayNameField Abbreviated DefaultCasing]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -383,6 +419,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ WeekdayNumberField Monday 1]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -392,6 +429,7 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ WeekdayNumberField Sunday 0]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual
 
@@ -401,5 +439,6 @@ dateWriterSuite =
             actual =
               writeDateFormat
                 [FormatItem $ WeekdayNumberField Monday 1]
+                defDateTimeFormatLocale
                 sampleDate
         Assert.equal expected actual

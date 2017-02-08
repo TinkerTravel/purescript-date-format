@@ -6,6 +6,7 @@ import Data.DateTime
 import Data.DateTime.Format.Class
 import Data.DateTime.Format.FormatSpec
 import Data.DateTime.Format.Field
+import Data.DateTime.Format.FormatLocale
 import Data.Array as Array
 import Data.Foldable (foldMap)
 import Data.String as String
@@ -13,14 +14,16 @@ import Data.Enum (fromEnum)
 
 writeDateFormat :: forall d. FormatDate d
                 => DateFormatSpec
+                -> _
                 -> d
                 -> String
-writeDateFormat fmt d =
-  foldMap (\item -> writeDateFormatItem item d) fmt
+writeDateFormat fmt l d =
+  foldMap (\item -> writeDateFormatItem item l d) fmt
 
 
 writeDateFormatItem :: forall d. FormatDate d
                     => (FormatItem DateField)
+                    -> _
                     -> d
                     -> String
 writeDateFormatItem = writeFormatItem writeDateField
@@ -28,6 +31,7 @@ writeDateFormatItem = writeFormatItem writeDateField
 
 writeTimeFormat :: forall d. FormatTime d
                 => TimeFormatSpec
+                -> _
                 -> d
                 -> String
 writeTimeFormat fmt d =
@@ -36,36 +40,41 @@ writeTimeFormat fmt d =
 
 writeTimeFormatItem :: forall d. FormatTime d
                     => (FormatItem TimeField)
+                    -> _
                     -> d
                     -> String
 writeTimeFormatItem = writeFormatItem writeTimeField
 
 
 writeDateTimeFormat :: forall d. FormatDateTime d
-                => DateTimeFormatSpec
-                -> d
-                -> String
+                    => DateTimeFormatSpec
+                    -> _
+                    -> d
+                    -> String
 writeDateTimeFormat fmt d =
   foldMap (\item -> writeDateTimeFormatItem item d) fmt
 
 
 writeDateTimeFormatItem :: forall d. FormatDateTime d
-                    => (FormatItem DateTimeField)
-                    -> d
-                    -> String
+                        => (FormatItem DateTimeField)
+                        -> _
+                        -> d
+                        -> String
 writeDateTimeFormatItem = writeFormatItem writeDateTimeField
 
 
-writeFormatItem :: forall d i.
-                   (i -> d -> String)
+writeFormatItem :: forall d i l.
+                   (i -> l -> d -> String)
                 -> FormatItem i
+                -> l
                 -> d
                 -> String
-writeFormatItem _ (Literal str) _ = str
-writeFormatItem fmt (FormatItem i) d = fmt i d
+writeFormatItem _ (Literal str) _ _ = str
+writeFormatItem fmt (FormatItem i) l d = fmt i l d
 
 writeDateTimeField :: forall d. FormatDateTime d
                => DateTimeField
+               -> _
                -> d
                -> String
 writeDateTimeField (DateField f) = writeDateField f
@@ -73,46 +82,47 @@ writeDateTimeField (TimeField f) = writeTimeField f
 
 writeDateField :: forall d. FormatDate d
                => DateField
+               -> _
                -> d
                -> String
-writeDateField (YearField Full padding) =
+writeDateField (YearField Full padding) locale =
       getYear
   >>> fromEnum
   >>> show
   >>> applyPadding 4 padding
-writeDateField (YearField Abbreviated padding) =
+writeDateField (YearField Abbreviated padding) locale =
       getYear
   >>> fromEnum
   >>> show
   >>> takeEnd 2
   >>> applyPadding 2 padding
-writeDateField (MonthNumberField padding) =
+writeDateField (MonthNumberField padding) locale =
       getMonth
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeDateField (MonthNameField Abbreviated casing) =
+writeDateField (MonthNameField Abbreviated casing) locale =
       getMonth
-  >>> shortMonthName
+  >>> shortMonthName locale
   >>> applyCasing casing
-writeDateField (MonthNameField Full casing) =
+writeDateField (MonthNameField Full casing) locale =
       getMonth
-  >>> fullMonthName
+  >>> fullMonthName locale
   >>> applyCasing casing
-writeDateField (DayField padding) =
+writeDateField (DayField padding) locale =
       getDay
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeDateField (WeekdayNameField Abbreviated casing) =
+writeDateField (WeekdayNameField Abbreviated casing) locale =
       getWeekday
-  >>> shortWeekdayName
+  >>> shortWeekdayName locale
   >>> applyCasing casing
-writeDateField (WeekdayNameField Full casing) =
+writeDateField (WeekdayNameField Full casing) locale =
       getWeekday
-  >>> fullWeekdayName
+  >>> fullWeekdayName locale
   >>> applyCasing casing
-writeDateField (WeekdayNumberField shift base) =
+writeDateField (WeekdayNumberField shift base) locale =
       getWeekday
   >>> fromEnum
   >>> (\x -> (x + 7 - fromEnum shift) `mod` 7 + base)
@@ -121,43 +131,44 @@ writeDateField (WeekdayNumberField shift base) =
 
 writeTimeField :: forall t. FormatTime t
                => TimeField
+               -> _
                -> t
                -> String
-writeTimeField (HourField Hours24 padding) =
+writeTimeField (HourField Hours24 padding) locale =
       getHour
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeTimeField (HourField Hours12 padding) =
+writeTimeField (HourField Hours12 padding) locale =
       getHour
   >>> fromEnum
   >>> wrap12
   >>> show
   >>> applyPadding 2 padding
-writeTimeField (MinuteField padding) =
+writeTimeField (MinuteField padding) locale =
       getMinute
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeTimeField (SecondField padding) =
+writeTimeField (SecondField padding) locale =
       getSecond
   >>> fromEnum
   >>> show
   >>> applyPadding 2 padding
-writeTimeField (MillisecondsField padding) =
+writeTimeField (MillisecondsField padding) locale =
       getMillisecond
   >>> fromEnum
   >>> show
   >>> applyPadding 3 padding
-writeTimeField (AMPMField casing) =
+writeTimeField (AMPMField casing) locale =
       getHour
-  >>> ampmMarker
+  >>> ampmMarker locale
   >>> applyCasing casing
 
-ampmMarker :: Hour -> String
-ampmMarker h
-  | fromEnum h >= 12 = "PM"
-  | otherwise = "AM"
+ampmMarker :: _ -> Hour -> String
+ampmMarker locale h
+  | fromEnum h >= 12 = locale.pmName
+  | otherwise = locale.amName
 
 wrap12 :: Int -> Int
 wrap12 i
@@ -186,14 +197,14 @@ applyCasing DefaultCasing str = str
 applyCasing AllCaps str = String.toUpper str
 applyCasing LowerCase str = String.toLower str
 
-shortMonthName :: Month -> String
-shortMonthName = show >>> String.take 3
+shortMonthName :: _ -> Month -> String
+shortMonthName locale = locale.shortMonthName
 
-fullMonthName :: Month -> String
-fullMonthName = show
+fullMonthName :: _ -> Month -> String
+fullMonthName locale = locale.monthName
 
-shortWeekdayName :: Weekday -> String
-shortWeekdayName = show >>> String.take 3
+shortWeekdayName :: _ -> Weekday -> String
+shortWeekdayName locale = locale.shortWeekdayName
 
-fullWeekdayName :: Weekday -> String
-fullWeekdayName = show
+fullWeekdayName :: _ -> Weekday -> String
+fullWeekdayName locale = locale.weekdayName
