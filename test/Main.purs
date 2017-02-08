@@ -11,9 +11,11 @@ import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (runTest)
 import Data.DateTime.Format.ParseTest (parserSuite)
 import Data.DateTime.Format.WriteTest (writerSuite)
+import Data.DateTime.Format.FormatTest (formatSuite)
 
 main :: forall e. Eff (avar :: AVAR, testOutput :: TESTOUTPUT, console :: CONSOLE | e) Unit
 main = do
   runTest do
     parserSuite
     writerSuite
+    formatSuite

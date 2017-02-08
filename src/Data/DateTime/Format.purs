@@ -3,13 +3,16 @@ module Data.DateTime.Format
 , module Data.DateTime.Format.FormatSpec
 , module Data.DateTime.Format.Parse
 , module Data.DateTime.Format.Write
+, module Data.DateTime.Format.Format
 , module Data.Date
 )
 where
 
+import Prelude
 import Data.DateTime.Format.Field
 import Data.DateTime.Format.FormatSpec
 import Data.DateTime.Format.Parse
 import Data.DateTime.Format.Class
 import Data.DateTime.Format.Write
+import Data.DateTime.Format.Format
 import Data.Date (Weekday (..))
