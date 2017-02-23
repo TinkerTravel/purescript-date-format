@@ -4,10 +4,14 @@ where
 import Prelude
 import Data.DateTime
 import Data.DateTime.Locale (Locale (..), LocaleName (..), LocalValue (..))
-import Data.DateTime.Instant (Instant)
+import Data.DateTime.Instant (Instant, instant)
 import Data.DateTime.Instant as Instant
 import Data.Time.Duration (Minutes (..))
-import Data.Maybe (Maybe (..))
+import Data.Maybe (Maybe (..), fromMaybe)
+import Data.JSDate as JSD
+import Data.JSDate (JSDate)
+import Data.Int as Int
+import Data.Enum (fromEnum, toEnum)
 
 class FormatTime a where
   getHour :: a -> Hour
@@ -63,3 +67,51 @@ instance localValueFormatTime :: FormatTime a => FormatTime (LocalValue a) where
   getSecond (LocalValue _ a) = getSecond a
   getMillisecond (LocalValue _ a) = getMillisecond a
   getTimeZone (LocalValue locale a) = locale
+
+instance formatDateJSDate :: FormatDate JSDate where
+  getYear = JSD.getUTCFullYear
+          >>> Int.fromNumber
+          >>> fromMaybe 0
+          >>> toEnum
+          >>> fromMaybe bottom
+  getMonth = JSD.getUTCMonth
+           >>> Int.fromNumber
+           >>> fromMaybe 1
+           >>> toEnum
+           >>> fromMaybe bottom
+  getDay = JSD.getUTCDate
+         >>> Int.fromNumber
+         >>> fromMaybe 1
+         >>> toEnum
+         >>> fromMaybe bottom
+  getWeekday = JSD.getUTCDay
+             >>> Int.fromNumber
+             >>> fromMaybe 1
+             >>> toEnum
+             >>> fromMaybe bottom
+
+instance formatTimeJSDate :: FormatTime JSDate where
+  getHour = JSD.getUTCHours
+          >>> Int.fromNumber
+          >>> fromMaybe 0
+          >>> toEnum
+          >>> fromMaybe bottom
+  getMinute = JSD.getUTCMinutes
+            >>> Int.fromNumber
+            >>> fromMaybe 0
+            >>> toEnum
+            >>> fromMaybe bottom
+  getSecond = JSD.getUTCSeconds
+            >>> Int.fromNumber
+            >>> fromMaybe 0
+            >>> toEnum
+            >>> fromMaybe bottom
+  getMillisecond = JSD.getUTCMilliseconds
+                 >>> Int.fromNumber
+                 >>> fromMaybe 0
+                 >>> toEnum
+                 >>> fromMaybe bottom
+  getTimeZone _ =
+    Locale
+      (Just $ LocaleName "UTC")
+      (Minutes 0.0)
