@@ -1,5 +1,6 @@
 module Data.DateTime.Format
 ( module Data.DateTime.Format.Field
+, module Data.DateTime.Format.Class
 , module Data.DateTime.Format.FormatSpec
 , module Data.DateTime.Format.Parse
 , module Data.DateTime.Format.Write
