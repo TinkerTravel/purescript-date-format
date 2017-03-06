@@ -16,6 +16,7 @@ import Data.DateTime (DateTime (..))
 import Data.Tuple (Tuple (..))
 import Data.Traversable (for, sequence)
 import Data.Maybe (maybe)
+import Data.JSDate as JSD
 
 formatSuite :: forall e. TestSuite e
 formatSuite = do
@@ -28,6 +29,8 @@ formatSuite = do
                     <*> toEnum 5
                     <*> toEnum 1
                     <*> toEnum 456)
+      sampleJSD =
+        JSD.fromDateTime <$> sampleDT
   let cases =
         [ Tuple "" ""
         , Tuple "%Y-%m-%d %H:%M:%S" "2017-02-07 13:05:01"
@@ -41,9 +44,15 @@ formatSuite = do
             if fmt == ""
               then "<empty format>"
               else show fmt <> " -> " <> show expected
-      test testName do
+      test (testName <> " (DateTime)") do
         Assert.equal
           (Right expected)
           (maybe
             (Left "Invalid sample date")
             (formatDateTime fmt defDateTimeFormatLocale) $ sampleDT)
+      test (testName <> " (JSDate)") do
+        Assert.equal
+          (Right expected)
+          (maybe
+            (Left "Invalid sample date")
+            (formatDateTime fmt defDateTimeFormatLocale) $ sampleJSD)

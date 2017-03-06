@@ -6,7 +6,7 @@ import Data.DateTime
 import Data.DateTime.Locale (Locale (..), LocaleName (..), LocalValue (..))
 import Data.DateTime.Instant (Instant, instant)
 import Data.DateTime.Instant as Instant
-import Data.Time.Duration (Minutes (..))
+import Data.Time.Duration (Minutes (..), Milliseconds (..))
 import Data.Maybe (Maybe (..), fromMaybe)
 import Data.JSDate as JSD
 import Data.JSDate (JSDate)
@@ -76,7 +76,8 @@ instance formatDateJSDate :: FormatDate JSDate where
           >>> fromMaybe bottom
   getMonth = JSD.getUTCMonth
            >>> Int.fromNumber
-           >>> fromMaybe 1
+           >>> fromMaybe 0
+           >>> (_ + 1)
            >>> toEnum
            >>> fromMaybe bottom
   getDay = JSD.getUTCDate
@@ -115,3 +116,6 @@ instance formatTimeJSDate :: FormatTime JSDate where
     Locale
       (Just $ LocaleName "UTC")
       (Minutes 0.0)
+
+instance formatDateTimeJSDate :: FormatDateTime JSDate where
+  getTimestamp = JSD.getTime >>> Milliseconds >>> instant >>> fromMaybe bottom
