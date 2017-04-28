@@ -68,7 +68,7 @@ pField :: forall a.
           (Maybe Casing -> Maybe Padding -> Char -> P.Parser String (Array (FormatItem a)))
        -> P.Parser String (Array (FormatItem a))
 pField inner = do
-  P.char '%'
+  _ <- P.char '%'
   pad <- P.optionMaybe pPadding
   casing <- P.optionMaybe pCasing
   c <- P.anyChar
